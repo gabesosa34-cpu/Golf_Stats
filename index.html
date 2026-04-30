@@ -1,0 +1,1455 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Golf Player Dashboard</title>
+  <style>
+    :root {
+      --bg: #eef4f0;
+      --ink: #101816;
+      --muted: #65736b;
+      --panel: #ffffff;
+      --panel-tint: #fbfdfb;
+      --line: #d6e2dc;
+      --line-strong: #b9c9c1;
+      --green: #0c6f43;
+      --green-deep: #073f2a;
+      --green-soft: #e5f3eb;
+      --fairway: #cfe4d4;
+      --blue: #1f5f8b;
+      --blue-soft: #e5f0f7;
+      --red: #a9443f;
+      --gold: #ba8a2f;
+      --sand: #f4ead8;
+      --black: #081713;
+      --shadow: 0 18px 44px rgba(8, 23, 19, 0.12);
+      font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      background:
+        linear-gradient(180deg, rgba(5, 30, 21, 0.97) 0, rgba(10, 62, 39, 0.94) 245px, transparent 246px),
+        repeating-linear-gradient(112deg, rgba(12, 111, 67, 0.045) 0 22px, rgba(255, 255, 255, 0.16) 22px 44px),
+        linear-gradient(180deg, #e9f1ec 0, #f7f9f6 620px),
+        var(--bg);
+      color: var(--ink);
+      min-width: 320px;
+      -webkit-font-smoothing: antialiased;
+      text-rendering: geometricPrecision;
+    }
+
+    button, input { font: inherit; }
+
+    .app {
+      width: min(1360px, calc(100% - 32px));
+      margin: 0 auto;
+      padding: 26px 0 42px;
+    }
+
+    .topbar {
+      position: relative;
+      z-index: 50;
+      isolation: isolate;
+      background:
+        linear-gradient(135deg, rgba(8, 23, 19, 0.98) 0%, rgba(8, 48, 32, 0.98) 54%, rgba(18, 91, 58, 0.96) 100%);
+      color: #fff;
+      border-radius: 8px;
+      border: 1px solid rgba(220, 236, 226, 0.18);
+      box-shadow: var(--shadow);
+      overflow: visible;
+    }
+
+    .topbar::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      z-index: -1;
+      border-radius: inherit;
+      background:
+        linear-gradient(118deg, transparent 0 18%, rgba(255, 255, 255, 0.07) 18% 18.5%, transparent 18.5% 44%, rgba(255, 255, 255, 0.05) 44% 44.5%, transparent 44.5%),
+        repeating-linear-gradient(90deg, rgba(255, 255, 255, 0.04) 0 1px, transparent 1px 34px);
+      pointer-events: none;
+    }
+
+    .brand-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 20px;
+      padding: 18px 20px;
+      border-bottom: 1px solid rgba(234, 246, 238, 0.14);
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      min-width: 0;
+    }
+
+    .brand-mark {
+      width: 42px;
+      height: 42px;
+      display: grid;
+      place-items: center;
+      background:
+        linear-gradient(135deg, #ffffff, #dbeee2);
+      color: var(--green-deep);
+      border-radius: 8px;
+      font-weight: 950;
+      letter-spacing: 0;
+      flex: 0 0 auto;
+      box-shadow: 0 10px 24px rgba(0, 0, 0, 0.22), inset 0 0 0 1px rgba(12, 111, 67, 0.16);
+    }
+
+    .brand h1 {
+      margin: 0;
+      font-size: clamp(1.1rem, 2.4vw, 1.42rem);
+      line-height: 1.1;
+      letter-spacing: 0;
+      font-weight: 950;
+    }
+
+    .brand span {
+      display: block;
+      color: #c7d7ce;
+      font-size: 0.78rem;
+      margin-top: 4px;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .season-pill {
+      flex: 0 0 auto;
+      border: 1px solid rgba(255, 255, 255, 0.26);
+      border-radius: 999px;
+      padding: 8px 12px;
+      font-size: 0.78rem;
+      color: #ecf6ef;
+      background: rgba(255, 255, 255, 0.09);
+      box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.1);
+    }
+
+    .search-row {
+      position: relative;
+      padding: 20px;
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) auto;
+      gap: 14px;
+      align-items: center;
+    }
+
+    .search-wrap {
+      position: relative;
+      min-width: 0;
+    }
+
+    .search-label {
+      display: block;
+      color: #ecf7ef;
+      font-size: 0.8rem;
+      font-weight: 900;
+      margin-bottom: 8px;
+      text-transform: uppercase;
+      letter-spacing: 0;
+    }
+
+    .search-input {
+      width: 100%;
+      height: 56px;
+      padding: 0 52px 0 18px;
+      border-radius: 8px;
+      border: 1px solid rgba(255, 255, 255, 0.5);
+      background: rgba(255, 255, 255, 0.96);
+      color: var(--ink);
+      font-size: 1.04rem;
+      outline: none;
+      appearance: textfield;
+      box-shadow: 0 16px 30px rgba(0, 0, 0, 0.18);
+    }
+
+    .search-input::-webkit-search-decoration,
+    .search-input::-webkit-search-cancel-button,
+    .search-input::-webkit-search-results-button,
+    .search-input::-webkit-search-results-decoration {
+      display: none;
+    }
+
+    .search-input:focus {
+      border-color: #b7dfc4;
+      box-shadow: 0 0 0 3px rgba(189, 226, 201, 0.36), 0 16px 30px rgba(0, 0, 0, 0.18);
+    }
+
+    .clear-search {
+      position: absolute;
+      right: 8px;
+      bottom: 8px;
+      width: 40px;
+      height: 40px;
+      border: 0;
+      border-radius: 8px;
+      background: #e7eee9;
+      color: #244436;
+      cursor: pointer;
+      font-size: 1.15rem;
+      line-height: 1;
+    }
+
+    .clear-search:hover { background: #d9e5de; }
+
+    .suggestions {
+      position: absolute;
+      z-index: 100;
+      left: 0;
+      right: 0;
+      top: calc(100% + 6px);
+      background: rgba(255, 255, 255, 0.98);
+      color: var(--ink);
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      box-shadow: 0 22px 44px rgba(7, 38, 25, 0.18);
+      overflow-x: hidden;
+      overflow-y: auto;
+      max-height: min(420px, calc(100vh - 190px));
+      overscroll-behavior: contain;
+      display: none;
+    }
+
+    .suggestions.is-open { display: block; }
+
+    .suggestion {
+      width: 100%;
+      border: 0;
+      background: #fff;
+      display: grid;
+      grid-template-columns: 36px minmax(0, 1fr) auto;
+      gap: 10px;
+      align-items: center;
+      padding: 11px 12px;
+      color: var(--ink);
+      text-align: left;
+      cursor: pointer;
+      border-bottom: 1px solid #eef4ef;
+    }
+
+    .suggestion:last-child { border-bottom: 0; }
+    .suggestion:hover, .suggestion.is-active { background: #f2f8f4; }
+
+    .suggestion-badge {
+      width: 36px;
+      height: 36px;
+      display: grid;
+      place-items: center;
+      border-radius: 8px;
+      background: linear-gradient(135deg, var(--green-soft), #f7fbf8);
+      color: var(--green);
+      font-weight: 900;
+      font-size: 0.82rem;
+      border: 1px solid #cfe3d7;
+    }
+
+    .suggestion-name {
+      min-width: 0;
+      font-weight: 850;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    .suggestion-meta {
+      color: var(--muted);
+      font-size: 0.78rem;
+      margin-top: 2px;
+    }
+
+    .suggestion-rank {
+      color: var(--muted);
+      font-size: 0.78rem;
+      white-space: nowrap;
+    }
+
+    .quick-picks {
+      display: flex;
+      gap: 8px;
+      align-self: end;
+      flex-wrap: wrap;
+      justify-content: flex-end;
+    }
+
+    .quick-picks button {
+      border: 1px solid rgba(255, 255, 255, 0.28);
+      background: rgba(255, 255, 255, 0.1);
+      color: #fff;
+      border-radius: 999px;
+      padding: 9px 12px;
+      cursor: pointer;
+      font-size: 0.83rem;
+      font-weight: 800;
+      white-space: nowrap;
+      box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.08);
+    }
+
+    .quick-picks button:hover { background: rgba(255, 255, 255, 0.18); }
+
+    .player-hero {
+      position: relative;
+      z-index: 1;
+      margin-top: 18px;
+      display: grid;
+      grid-template-columns: minmax(0, 1.15fr) minmax(320px, 0.85fr);
+      gap: 16px;
+      align-items: stretch;
+    }
+
+    .player-card,
+    .context-panel,
+    .stat-card,
+    .section,
+    .chart-card {
+      background: linear-gradient(180deg, var(--panel), var(--panel-tint));
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      box-shadow: 0 12px 30px rgba(8, 23, 19, 0.08);
+    }
+
+    .player-card {
+      display: grid;
+      grid-template-columns: auto minmax(0, 1fr);
+      gap: 18px;
+      padding: 24px;
+      min-height: 184px;
+      align-items: center;
+      overflow: hidden;
+      position: relative;
+      background:
+        linear-gradient(135deg, rgba(255, 255, 255, 0.96) 0 62%, rgba(231, 244, 235, 0.98) 62%),
+        var(--panel);
+    }
+
+    .player-card::before {
+      content: "";
+      position: absolute;
+      inset: 0 0 auto;
+      height: 6px;
+      background: linear-gradient(90deg, var(--green), #6dbb84, var(--gold), var(--blue));
+    }
+
+    .player-card::after {
+      content: "";
+      position: absolute;
+      right: -20px;
+      bottom: -36px;
+      width: 310px;
+      height: 150px;
+      background:
+        repeating-linear-gradient(118deg, rgba(12, 111, 67, 0.06) 0 12px, transparent 12px 24px);
+      transform: skewX(-10deg);
+      pointer-events: none;
+    }
+
+    .player-avatar {
+      width: clamp(86px, 12vw, 118px);
+      height: clamp(86px, 12vw, 118px);
+      border-radius: 999px;
+      background:
+        radial-gradient(circle at 30% 28%, rgba(255, 255, 255, 0.96) 0 6px, transparent 7px),
+        radial-gradient(circle at 66% 38%, rgba(255, 255, 255, 0.7) 0 5px, transparent 6px),
+        radial-gradient(circle at 45% 70%, rgba(255, 255, 255, 0.52) 0 5px, transparent 6px),
+        linear-gradient(135deg, #0a3b29, #0c6f43 68%, #d7eddc 68%);
+      color: #fff;
+      display: grid;
+      place-items: center;
+      font-size: clamp(1.8rem, 4vw, 2.8rem);
+      font-weight: 950;
+      letter-spacing: 0;
+      box-shadow: 0 18px 30px rgba(8, 48, 32, 0.2), inset 0 0 0 3px rgba(255, 255, 255, 0.88);
+    }
+
+    .player-main {
+      min-width: 0;
+    }
+
+    .player-main h2 {
+      margin: 0;
+      font-size: clamp(2rem, 5vw, 4.4rem);
+      line-height: 0.95;
+      letter-spacing: 0;
+      color: #081713;
+      font-weight: 950;
+    }
+
+    .player-meta {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-top: 14px;
+    }
+
+    .meta-chip {
+      display: inline-flex;
+      align-items: center;
+      min-height: 28px;
+      border-radius: 999px;
+      border: 1px solid #cfe0d6;
+      padding: 5px 10px;
+      color: #244436;
+      background: #f4faf6;
+      font-size: 0.8rem;
+      font-weight: 800;
+    }
+
+    .context-panel {
+      padding: 20px;
+      display: grid;
+      grid-template-rows: auto 1fr;
+      gap: 14px;
+      background:
+        linear-gradient(180deg, rgba(255, 255, 255, 0.98), rgba(246, 250, 247, 0.98)),
+        var(--panel);
+    }
+
+    .context-panel h3,
+    .section h3,
+    .chart-card h3 {
+      margin: 0;
+      font-size: 0.92rem;
+      letter-spacing: 0;
+      text-transform: uppercase;
+      color: #2f453b;
+      font-weight: 950;
+    }
+
+    .snapshot-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 10px;
+      align-content: start;
+    }
+
+    .snapshot-item {
+      border: 1px solid #d7e5dd;
+      border-radius: 8px;
+      padding: 13px;
+      background:
+        linear-gradient(180deg, #ffffff, #f6fbf7);
+      min-width: 0;
+      box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.85);
+    }
+
+    .snapshot-label {
+      color: var(--muted);
+      font-size: 0.75rem;
+      text-transform: uppercase;
+      font-weight: 850;
+      letter-spacing: 0;
+    }
+
+    .snapshot-value {
+      margin-top: 5px;
+      font-size: 1.35rem;
+      font-weight: 950;
+      color: #0b3525;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .cards {
+      display: grid;
+      grid-template-columns: repeat(5, minmax(0, 1fr));
+      gap: 14px;
+      margin-top: 18px;
+    }
+
+    .stat-card {
+      position: relative;
+      padding: 17px;
+      min-height: 138px;
+      display: grid;
+      align-content: space-between;
+      overflow: hidden;
+      transition: transform 160ms ease, box-shadow 160ms ease, border-color 160ms ease;
+    }
+
+    .stat-card:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 18px 38px rgba(8, 23, 19, 0.12);
+    }
+
+    .stat-card::before {
+      content: "";
+      position: absolute;
+      inset: 0 auto 0 0;
+      width: 5px;
+      background: var(--green);
+    }
+
+    .stat-card::after {
+      content: "";
+      position: absolute;
+      inset: auto 14px 12px auto;
+      width: 38px;
+      height: 3px;
+      border-radius: 999px;
+      background: #dfe9e3;
+    }
+
+    .stat-card:nth-child(1)::before { background: var(--green); }
+    .stat-card:nth-child(2)::before { background: var(--gold); }
+    .stat-card:nth-child(3)::before { background: var(--red); }
+    .stat-card:nth-child(4)::before { background: var(--blue); }
+    .stat-card:nth-child(5)::before { background: #586b62; }
+
+    .stat-label {
+      color: var(--muted);
+      font-size: 0.76rem;
+      text-transform: uppercase;
+      font-weight: 900;
+      letter-spacing: 0;
+    }
+
+    .stat-value {
+      margin-top: 8px;
+      font-size: clamp(1.55rem, 3vw, 2.25rem);
+      font-weight: 950;
+      line-height: 1;
+      letter-spacing: 0;
+      color: #0b3022;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .stat-note {
+      margin-top: 10px;
+      color: var(--muted);
+      font-size: 0.78rem;
+      line-height: 1.35;
+      max-width: 20ch;
+    }
+
+    .content-grid {
+      display: grid;
+      grid-template-columns: minmax(0, 1.2fr) minmax(320px, 0.8fr);
+      gap: 16px;
+      margin-top: 18px;
+      align-items: start;
+    }
+
+    .section {
+      padding: 20px;
+      min-width: 0;
+      overflow: hidden;
+    }
+
+    .section-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 12px;
+    }
+
+    .section-subtitle {
+      color: var(--muted);
+      font-size: 0.78rem;
+      font-weight: 750;
+      white-space: nowrap;
+    }
+
+    .table-wrap {
+      overflow-x: auto;
+      border: 1px solid #d6e2dc;
+      border-radius: 8px;
+      background: #fff;
+      box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.85);
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      min-width: 760px;
+      background: transparent;
+    }
+
+    th, td {
+      padding: 12px 11px;
+      text-align: right;
+      border-bottom: 1px solid #edf4ef;
+      white-space: nowrap;
+      font-size: 0.88rem;
+    }
+
+    th:first-child,
+    td:first-child { text-align: left; }
+
+    th {
+      background:
+        linear-gradient(180deg, #f4faf6, #edf5f0);
+      color: #315244;
+      font-size: 0.72rem;
+      text-transform: uppercase;
+      font-weight: 900;
+      letter-spacing: 0;
+    }
+
+    tbody tr:hover td { background: #fbf5e9; }
+
+    tr:last-child td { border-bottom: 0; }
+
+    .rank-pill {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-width: 42px;
+      height: 26px;
+      padding: 0 7px;
+      border-radius: 999px;
+      background: #e5f2ea;
+      color: #0b5737;
+      font-weight: 900;
+      border: 1px solid #c7dfd0;
+    }
+
+    .timeline {
+      position: relative;
+      display: grid;
+      gap: 12px;
+      margin-top: 12px;
+    }
+
+    .timeline::before {
+      content: "";
+      position: absolute;
+      left: 17px;
+      top: 9px;
+      bottom: 9px;
+      width: 2px;
+      background: linear-gradient(180deg, var(--green), #d6e2dc);
+    }
+
+    .timeline-item {
+      position: relative;
+      display: grid;
+      grid-template-columns: 34px minmax(0, 1fr);
+      gap: 12px;
+      align-items: start;
+    }
+
+    .timeline-dot {
+      position: relative;
+      z-index: 1;
+      width: 34px;
+      height: 34px;
+      display: grid;
+      place-items: center;
+      border-radius: 999px;
+      background: #fff;
+      border: 2px solid var(--green);
+      color: var(--green);
+      font-size: 0.74rem;
+      font-weight: 950;
+      box-shadow: 0 0 0 5px #edf6f0;
+    }
+
+    .timeline-copy {
+      min-width: 0;
+      padding: 2px 0 10px;
+      border-bottom: 1px solid #e8f0eb;
+    }
+
+    .timeline-item:last-child .timeline-copy { border-bottom: 0; }
+
+    .timeline-title {
+      font-weight: 900;
+      line-height: 1.25;
+      color: #10251d;
+    }
+
+    .timeline-meta {
+      margin-top: 4px;
+      color: var(--muted);
+      font-size: 0.82rem;
+      line-height: 1.35;
+    }
+
+    .charts {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 16px;
+      margin-top: 18px;
+    }
+
+    .chart-card {
+      padding: 18px;
+      min-width: 0;
+      overflow: hidden;
+      background:
+        linear-gradient(180deg, rgba(255, 255, 255, 0.98), rgba(247, 251, 248, 0.98));
+    }
+
+    .chart-head {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      margin-bottom: 10px;
+    }
+
+    .chart-value {
+      color: var(--muted);
+      font-size: 0.8rem;
+      font-weight: 850;
+      white-space: nowrap;
+      background: #f2f8f4;
+      border: 1px solid #d5e5dc;
+      border-radius: 999px;
+      padding: 5px 8px;
+    }
+
+    .chart {
+      width: 100%;
+      height: 238px;
+      display: block;
+      background:
+        linear-gradient(180deg, rgba(255, 255, 255, 0.64), rgba(242, 248, 244, 0.44));
+      border-radius: 8px;
+    }
+
+    .axis-text {
+      fill: #65736b;
+      font-size: 11px;
+      font-weight: 700;
+    }
+
+    .grid-line { stroke: #dce8e1; stroke-width: 1; }
+    .chart-line { fill: none; stroke-width: 3; stroke-linecap: round; stroke-linejoin: round; }
+    .chart-dot { stroke: #fff; stroke-width: 2; }
+
+    .empty-state {
+      min-height: 140px;
+      display: grid;
+      place-items: center;
+      color: var(--muted);
+      border: 1px dashed var(--line-strong);
+      border-radius: 8px;
+      background: #f8fbf8;
+      text-align: center;
+      padding: 16px;
+      line-height: 1.4;
+    }
+
+    .source-note {
+      margin-top: 16px;
+      color: var(--muted);
+      font-size: 0.78rem;
+      line-height: 1.45;
+      background: rgba(255, 255, 255, 0.58);
+      border: 1px solid rgba(214, 226, 220, 0.8);
+      border-radius: 8px;
+      padding: 12px;
+    }
+
+    @media (max-width: 1160px) {
+      .cards { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+      .charts { grid-template-columns: 1fr; }
+    }
+
+    @media (max-width: 900px) {
+      .app { width: min(100% - 20px, 1360px); padding-top: 10px; }
+      .brand-row,
+      .search-row,
+      .player-hero,
+      .content-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .search-row { gap: 14px; }
+      .quick-picks { justify-content: flex-start; align-self: auto; }
+      .player-card { grid-template-columns: 1fr; }
+      .player-avatar { width: 82px; height: 82px; font-size: 1.7rem; }
+      .context-panel { min-height: auto; }
+      .cards { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+      .section-header { align-items: flex-start; flex-direction: column; }
+      .section-subtitle { white-space: normal; }
+    }
+
+    @media (max-width: 560px) {
+      .brand-row { gap: 12px; }
+      .season-pill { display: none; }
+      .search-row { padding: 14px; }
+      .cards,
+      .snapshot-grid {
+        grid-template-columns: 1fr;
+      }
+      .player-card,
+      .context-panel,
+      .section,
+      .chart-card {
+        padding: 14px;
+      }
+      .player-main h2 { font-size: 2rem; line-height: 1.02; }
+      .stat-card { min-height: 116px; }
+      .chart { height: 210px; }
+    }
+  </style>
+</head>
+<body>
+  <main class="app">
+    <header class="topbar">
+      <div class="brand-row">
+        <div class="brand">
+          <div class="brand-mark">PG</div>
+          <div>
+            <h1>Golf Player Dashboard</h1>
+            <span>Money list, wins, rankings, and season form</span>
+          </div>
+        </div>
+        <div class="season-pill" id="seasonPill"></div>
+      </div>
+      <div class="search-row">
+        <div class="search-wrap">
+          <label class="search-label" for="playerSearch">Search for a golfer</label>
+          <input id="playerSearch" class="search-input" type="search" autocomplete="off" spellcheck="false" />
+          <button class="clear-search" id="clearSearch" aria-label="Clear search">×</button>
+          <div class="suggestions" id="suggestions" role="listbox"></div>
+        </div>
+        <div class="quick-picks" id="quickPicks"></div>
+      </div>
+    </header>
+
+    <section class="player-hero" aria-live="polite">
+      <div class="player-card">
+        <div class="player-avatar" id="playerAvatar"></div>
+        <div class="player-main">
+          <h2 id="playerName"></h2>
+          <div class="player-meta" id="playerMeta"></div>
+        </div>
+      </div>
+      <aside class="context-panel">
+        <h3>Current Snapshot</h3>
+        <div class="snapshot-grid" id="snapshotGrid"></div>
+      </aside>
+    </section>
+
+    <section class="cards" id="statCards"></section>
+
+    <section class="content-grid">
+      <div class="section">
+        <div class="section-header">
+          <h3>Recent Results</h3>
+          <div class="section-subtitle" id="recentSubtitle"></div>
+        </div>
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>Season</th>
+                <th>Money Rank</th>
+                <th>Earnings</th>
+                <th>Wins</th>
+                <th>Top 10s</th>
+                <th>Scoring</th>
+                <th>SG Total</th>
+              </tr>
+            </thead>
+            <tbody id="recentRows"></tbody>
+          </table>
+        </div>
+      </div>
+
+      <div class="section">
+        <div class="section-header">
+          <h3>Career Timeline</h3>
+          <div class="section-subtitle" id="timelineSubtitle"></div>
+        </div>
+        <div class="timeline" id="timeline"></div>
+      </div>
+    </section>
+
+    <section class="charts">
+      <div class="chart-card">
+        <div class="chart-head">
+          <h3>Earnings Over Time</h3>
+          <div class="chart-value" id="earningsChartValue"></div>
+        </div>
+        <svg class="chart" id="earningsChart" viewBox="0 0 520 238" role="img"></svg>
+      </div>
+      <div class="chart-card">
+        <div class="chart-head">
+          <h3>Wins Over Time</h3>
+          <div class="chart-value" id="winsChartValue"></div>
+        </div>
+        <svg class="chart" id="winsChart" viewBox="0 0 520 238" role="img"></svg>
+      </div>
+      <div class="chart-card">
+        <div class="chart-head">
+          <h3>Ranking Over Time</h3>
+          <div class="chart-value" id="rankingChartValue"></div>
+        </div>
+        <svg class="chart" id="rankingChart" viewBox="0 0 520 238" role="img"></svg>
+      </div>
+    </section>
+
+    <p class="source-note" id="sourceNote"></p>
+  </main>
+
+  <script>
+    const FIELD_NAMES = ["year","moneyRank","playerId","player","country","money","wins","top10","owgrPoints","fedexPoints","scoringAvg","sgTotal","coverage"];
+    const SEASON_ROWS = [[2000,1,"08793","Tiger Woods","United States",9188321,9,17,29.4,0,67.794,0,"Full season"],[2000,2,"01810","Phil Mickelson","United States",4746457,4,12,11.07,0,69.254,0,"Full season"],[2000,3,"06522","Ernie Els","South Africa",3469405,1,10,11.65,0,69.314,0,"Full season"],[2000,4,"02170","Hal Sutton","United States",3061444,2,11,7.71,0,70.117,0,"Full season"],[2000,5,"06567","Vijay Singh","Fiji",2573835,1,8,7.17,0,70.01,0,"Full season"],[2000,6,"10423","Mike Weir","Canada",2547829,1,8,4.96,0,70.363,0,"Full season"],[2000,7,"09011","David Duval","United States",2462846,1,9,11.2,0,69.412,0,"Full season"],[2000,8,"12660","Jesper Parnevik","Sweden",2413345,2,9,6.96,0,69.943,0,"Full season"],[2000,9,"01706","Davis Love III","United States",2337765,0,9,7.88,0,69.9,0,"Full season"],[2000,10,"20229","Stewart Cink","United States",2169727,1,9,5.3,0,69.794,0,"Full season"],[2000,11,"02214","Kirk Triplett","United States",2099943,1,10,4.35,0,70.213,0,"Full season"],[2000,12,"01677","Tom Lehman","United States",2068499,1,7,7.1,0,69.835,0,"Full season"],[2000,13,"07457","Steve Flesch","United States",2025781,0,13,3.37,0,69.797,0,"Full season"],[2000,14,"10860","Justin Leonard","United States",2023465,1,4,5.22,0,70.14,0,"Full season"],[2000,15,"02206","David Toms","United States",2002068,1,6,4.75,0,70.174,0,"Full season"],[2000,16,"10885","Robert Allenby","Australia",1968685,2,3,3.91,0,70.539,0,"Full season"],[2000,17,"10809","Jim Furyk","United States",1940519,1,8,5.76,0,70.059,0,"Full season"],[2000,18,"02010","Loren Roberts","United States",1932280,1,9,4.81,0,69.887,0,"Full season"],[2000,19,"06251","Chris DiMarco","United States",1842221,1,5,2.59,0,70.63,0,"Full season"],[2000,20,"20029","Notah Begay III","United States",1819323,2,4,4.02,0,70.735,0,"Full season"],[2000,21,"01968","Nick Price","Zimbabwe",1804433,0,6,6.29,0,69.746,0,"Full season"],[2000,22,"02239","Scott Verplank","United States",1747643,1,6,3.09,0,70.316,0,"Full season"],[2000,23,"01161","Mark Calcavecchia","United States",1702317,0,9,3.17,0,70.458,0,"Full season"],[2000,24,"20098","Stuart Appleby","Australia",1642221,0,5,4.11,0,70.28,0,"Full season"],[2000,25,"01553","John Huston","United States",1631695,1,8,5.05,0,70.061,0,"Full season"],[2000,26,"08993","Franklin Langham","United States",1604952,0,7,2.81,0,70.898,0,"Full season"],[2000,27,"01042","Paul Azinger","United States",1597139,1,7,4.32,0,69.676,0,"Full season"],[2000,28,"01943","Chris Perry","United States",1563115,0,7,4.34,0,70.245,0,"Full season"],[2000,29,"06350","Bob May","United States",1557720,0,3,4.48,0,70.318,0,"Full season"],[2000,30,"12823","Carlos Franco","Paraguay",1550592,1,6,4.67,0,70.862,0,"Full season"],[2000,31,"01707","Steve Lowery","United States",1543818,1,9,2.2,0,70.288,0,"Full season"],[2000,32,"02246","Duffy Waldorf","United States",1384508,1,6,3.9,0,70.556,0,"Full season"],[2000,33,"01527","Scott Hoch","United States",1368888,0,7,3.3,0,70.413,0,"Full season"],[2000,34,"01797","Rocco Mediate","United States",1320278,1,3,4.17,0,70.671,0,"Full season"],[2000,35,"10649","Tom Scherrer","United States",1263585,1,4,1.98,0,71.025,0,"Full season"],[2000,36,"23621","Rory Sabbatini","Slovakia",1262535,1,3,2.11,0,71.599,0,"Full season"],[2000,37,"12680","Shigeki Maruyama","Japan",1207104,0,7,3.09,0,70.768,0,"Full season"],[2000,38,"02245","Grant Waite","New Zealand",1142789,0,4,1.46,0,70.49,0,"Full season"],[2000,39,"01724","Jeff Maggert","United States",1138749,0,6,3.88,0,70.98,0,"Full season"],[2000,40,"20094","Jonathan Kaye","United States",1096131,0,4,2.07,0,70.653,0,"Full season"],[2000,41,"20593","Greg Chalmers","Australia",1063456,0,5,1.79,0,70.496,0,"Full season"],[2000,42,"21209","Sergio Garcia","Spain",1054338,0,5,5.67,0,70.228,0,"Full season"],[2000,43,"06575","Dudley Hart","United States",1048166,1,3,3.4,0,70.684,0,"Full season"],[2000,44,"06036","Scott Dunlap","United States",1040244,0,5,2.38,0,70.415,0,"Full season"],[2000,45,"01024","Billy Andrade","United States",1004827,1,2,1.62,0,71.275,0,"Full season"],[2000,46,"01329","Brad Faxon","United States",999460,1,5,2.22,0,70.969,0,"Full season"],[2000,47,"01226","Fred Couples","United States",990215,0,5,3.7,0,70.043,0,"Full season"],[2000,48,"01175","Jim Carter","United States",964346,1,1,1.36,0,71.299,0,"Full season"],[2000,49,"01771","Blaine McCallister","United States",963974,0,3,1.52,0,70.889,0,"Full season"],[2000,50,"01619","Skip Kendall","United States",947118,0,3,2.21,0,70.849,0,"Full season"],[2001,1,"08793","Tiger Woods","United States",5687777,5,9,15.67,0,68.808,0,"Full season"],[2001,2,"01810","Phil Mickelson","United States",4403883,2,13,9.16,0,69.206,0,"Full season"],[2001,3,"02206","David Toms","United States",3791595,3,9,5.83,0,69.965,0,"Full season"],[2001,4,"06567","Vijay Singh","Fiji",3440829,0,14,5.6,0,69.207,0,"Full season"],[2001,5,"01706","Davis Love III","United States",3169463,1,12,6.02,0,69.06,0,"Full season"],[2001,6,"21209","Sergio Garcia","Spain",2898635,2,8,5.86,0,69.129,0,"Full season"],[2001,7,"01527","Scott Hoch","United States",2875319,2,10,3.87,0,69.849,0,"Full season"],[2001,8,"09011","David Duval","United States",2801760,1,7,7.98,0,69.725,0,"Full season"],[2001,9,"01320","Bob Estes","United States",2795477,2,8,4.08,0,69.729,0,"Full season"],[2001,10,"02239","Scott Verplank","United States",2783401,1,8,4.23,0,69.884,0,"Full season"],[2001,11,"10423","Mike Weir","Canada",2777936,1,6,4.92,0,70.063,0,"Full season"],[2001,12,"06251","Chris DiMarco","United States",2595201,1,10,3.9,0,69.872,0,"Full season"],[2001,13,"10809","Jim Furyk","United States",2540734,1,8,4.28,0,69.922,0,"Full season"],[2001,14,"06621","Joe Durant","United States",2381684,2,6,2.73,0,70.449,0,"Full season"],[2001,15,"06522","Ernie Els","South Africa",2336456,0,9,6.99,0,70.301,0,"Full season"],[2001,16,"10885","Robert Allenby","Australia",2309029,2,5,3.86,0,70.53,0,"Full season"],[2001,17,"01161","Mark Calcavecchia","United States",1991576,1,5,3.56,0,70.397,0,"Full season"],[2001,18,"01329","Brad Faxon","United States",1951412,1,6,2.45,0,70.534,0,"Full season"],[2001,19,"11032","Frank Lickliter II","United States",1941911,1,8,2.39,0,70.279,0,"Full season"],[2001,20,"01677","Tom Lehman","United States",1907660,0,5,3.82,0,70.047,0,"Full season"],[2001,21,"02104","Jeff Sluman","United States",1841952,1,7,2,0,70.13,0,"Full season"],[2001,22,"01666","Bernhard Langer","Germany",1810363,0,7,4.52,0,69.886,0,"Full season"],[2001,23,"10585","Scott McCarron","United States",1793506,1,4,2.18,0,70.061,0,"Full season"],[2001,24,"01945","Kenny Perry","United States",1786066,1,6,3.14,0,70.223,0,"Full season"],[2001,25,"10860","Justin Leonard","United States",1783842,1,9,2.62,0,70.682,0,"Full season"],[2001,26,"20229","Stewart Cink","United States",1743028,0,6,3.18,0,70.269,0,"Full season"],[2001,27,"01707","Steve Lowery","United States",1738820,0,6,2.62,0,70.65,0,"Full season"],[2001,28,"02170","Hal Sutton","United States",1723946,1,3,3.06,0,70.506,0,"Full season"],[2001,29,"01766","Billy Mayfair","United States",1716002,0,5,2.11,0,70.378,0,"Full season"],[2001,30,"06527","Steve Stricker","United States",1676229,1,4,2.2,0,70.759,0,"Full season"],[2001,31,"12660","Jesper Parnevik","Sweden",1574208,1,4,3.14,0,70.119,0,"Full season"],[2001,32,"06595","Kevin Sutherland","United States",1523573,0,7,1.87,0,70.208,0,"Full season"],[2001,33,"01042","Paul Azinger","United States",1509130,0,4,3.58,0,70.139,0,"Full season"],[2001,34,"19972","José Coceres","Argentina",1502888,2,2,4.06,0,70.41,0,"Full season"],[2001,35,"08075","Jerry Kelly","United States",1491607,0,7,1.53,0,70.509,0,"Full season"],[2001,36,"01797","Rocco Mediate","United States",1474435,0,5,3.35,0,70.207,0,"Full season"],[2001,37,"12680","Shigeki Maruyama","Japan",1441455,1,4,1.96,0,70.417,0,"Full season"],[2001,38,"02214","Kirk Triplett","United States",1388202,0,5,2.58,0,70.325,0,"Full season"],[2001,39,"01941","Tom Pernice Jr.","United States",1318762,1,4,1.5,0,71.14,0,"Full season"],[2001,40,"01024","Billy Andrade","United States",1313047,0,6,2.18,0,70.809,0,"Full season"],[2001,41,"19846","Brian Gay","United States",1299361,0,5,1.48,0,70.435,0,"Full season"],[2001,42,"01968","Nick Price","Zimbabwe",1286756,0,6,3.23,0,69.665,0,"Full season"],[2001,43,"01381","Fred Funk","United States",1237004,0,4,1.45,0,70.402,0,"Full season"],[2001,44,"07457","Steve Flesch","United States",1207552,0,6,2.17,0,70.689,0,"Full season"],[2001,45,"20127","Chris Riley","United States",1198225,0,4,1.48,0,70.674,0,"Full season"],[2001,46,"01307","Joel Edwards","United States",1193528,1,3,1.25,0,70.655,0,"Full season"],[2001,47,"20157","Retief Goosen","South Africa",1126985,1,2,4.95,0,0,0,"Full season"],[2001,48,"02223","Bob Tway","United States",1121858,0,5,1.36,0,70.404,0,"Full season"],[2001,49,"23353","J.J. Henry","United States",1073847,0,5,1.05,0,70.984,0,"Full season"],[2001,50,"12652","Cameron Beckman","United States",1071343,1,4,1.2,0,70.653,0,"Full season"],[2002,1,"08793","Tiger Woods","United States",6912625,5,13,15.72,0,68.561,0,"Full season"],[2002,2,"01810","Phil Mickelson","United States",4311971,2,12,7.72,0,69.582,0,"Full season"],[2002,3,"06567","Vijay Singh","Fiji",3756563,2,11,5.53,0,69.471,0,"Full season"],[2002,4,"02206","David Toms","United States",3459739,0,12,6.02,0,69.734,0,"Full season"],[2002,5,"06522","Ernie Els","South Africa",3291895,2,7,6.84,0,69.496,0,"Full season"],[2002,6,"08075","Jerry Kelly","United States",2946889,2,8,3.2,0,70.421,0,"Full season"],[2002,7,"23614","Rich Beem","United States",2938365,2,5,3.42,0,70.968,0,"Full season"],[2002,8,"10860","Justin Leonard","United States",2738235,1,7,3.51,0,69.857,0,"Full season"],[2002,9,"21961","Charles Howell III","United States",2702747,1,7,3.46,0,70.018,0,"Full season"],[2002,10,"20157","Retief Goosen","South Africa",2617004,1,5,6.16,0,69.693,0,"Full season"],[2002,11,"06251","Chris DiMarco","United States",2606430,1,7,4.18,0,70.109,0,"Full season"],[2002,12,"21209","Sergio Garcia","Spain",2401993,1,9,6.19,0,69.999,0,"Full season"],[2002,13,"01381","Fred Funk","United States",2383071,0,7,2.73,0,69.989,0,"Full season"],[2002,14,"10809","Jim Furyk","United States",2363250,1,9,4.18,0,70.157,0,"Full season"],[2002,15,"02104","Jeff Sluman","United States",2250187,1,6,2.51,0,70.67,0,"Full season"],[2002,16,"12680","Shigeki Maruyama","Japan",2214794,1,5,3.03,0,70.257,0,"Full season"],[2002,17,"24357","K.J. Choi","South Korea",2204907,2,7,2.57,0,70.308,0,"Full season"],[2002,18,"01761","Len Mattiace","United States",2194064,2,4,2.26,0,70.548,0,"Full season"],[2002,19,"01968","Nick Price","Zimbabwe",2170912,1,8,4.14,0,69.592,0,"Full season"],[2002,20,"10885","Robert Allenby","Australia",2115771,0,8,3.33,0,70.264,0,"Full season"],[2002,21,"01706","Davis Love III","United States",2056160,0,6,4.82,0,70.089,0,"Full season"],[2002,22,"01797","Rocco Mediate","United States",2040676,1,4,3.3,0,70.361,0,"Full season"],[2002,23,"20127","Chris Riley","United States",2032979,1,5,2.51,0,70.171,0,"Full season"],[2002,24,"06373","José María Olazábal","Spain",1987027,1,7,2.62,0,70.551,0,"Full season"],[2002,25,"22913","John Rollins","United States",1956565,1,6,1.93,0,70.659,0,"Full season"],[2002,26,"01320","Bob Estes","United States",1934600,1,8,3.35,0,70.283,0,"Full season"],[2002,27,"01945","Kenny Perry","United States",1928598,0,6,3.11,0,70.205,0,"Full season"],[2002,28,"02010","Loren Roberts","United States",1919047,1,5,2.17,0,70.114,0,"Full season"],[2002,29,"10585","Scott McCarron","United States",1896714,0,5,2.81,0,70.784,0,"Full season"],[2002,30,"01707","Steve Lowery","United States",1882553,0,5,2.66,0,70.881,0,"Full season"],[2002,31,"01329","Brad Faxon","United States",1814672,0,5,2.44,0,70.66,0,"Full season"],[2002,32,"20098","Stuart Appleby","Australia",1729459,0,4,2.74,0,70.535,0,"Full season"],[2002,33,"12663","Phil Tataurangi","New Zealand",1643686,1,4,1.79,0,70.623,0,"Full season"],[2002,34,"10912","Craig Perks","New Zealand",1632042,1,3,1.5,0,71.562,0,"Full season"],[2002,35,"01219","John Cook","United States",1624095,0,6,2.23,0,71.173,0,"Full season"],[2002,36,"06595","Kevin Sutherland","United States",1569529,1,3,1.89,0,71.131,0,"Full season"],[2002,37,"01920","Craig Parry","Australia",1466235,1,2,2.79,0,71.132,0,"Full season"],[2002,38,"01527","Scott Hoch","United States",1465173,0,7,3.4,0,70.27,0,"Full season"],[2002,39,"24925","Jonathan Byrd","United States",1462713,1,4,1.96,0,70.928,0,"Full season"],[2002,40,"24361","Pat Perez","United States",1451726,0,6,1.64,0,71.074,0,"Full season"],[2002,41,"20634","Peter Lonard","Australia",1413113,0,4,2.52,0,70.005,0,"Full season"],[2002,42,"01024","Billy Andrade","United States",1365707,0,5,1.79,0,70.666,0,"Full season"],[2002,43,"02106","Chris Smith","United States",1361094,1,5,1.66,0,70.982,0,"Full season"],[2002,44,"01361","Dan Forsman","United States",1305790,1,4,1.47,0,70.791,0,"Full season"],[2002,45,"01553","John Huston","United States",1299053,0,5,1.84,0,70.209,0,"Full season"],[2002,46,"06004","Stephen Ames","Canada",1278037,0,4,1.43,0,70.677,0,"Full season"],[2002,47,"10565","Ian Leggatt","Canada",1245048,1,3,1.08,0,70.868,0,"Full season"],[2002,48,"01938","David Peoples","United States",1243774,0,4,1.37,0,70.749,0,"Full season"],[2002,49,"23108","Matt Kuchar","United States",1237725,1,4,1.66,0,71.038,0,"Full season"],[2002,50,"02239","Scott Verplank","United States",1217022,0,4,2.73,0,70.504,0,"Full season"],[2003,1,"06567","Vijay Singh","Fiji",7573907,4,18,9.98,0,68.649,0,"Full season"],[2003,2,"08793","Tiger Woods","United States",6673413,5,12,15.09,0,68.415,0,"Full season"],[2003,3,"01706","Davis Love III","United States",6081896,4,11,7.83,0,69.41,0,"Full season"],[2003,4,"10809","Jim Furyk","United States",5182865,2,15,6.89,0,69.102,0,"Full season"],[2003,5,"10423","Mike Weir","Canada",4918910,3,10,6.58,0,68.969,0,"Full season"],[2003,6,"01945","Kenny Perry","United States",4400122,3,11,5.17,0,69.573,0,"Full season"],[2003,7,"12510","Chad Campbell","United States",3912064,1,9,3.88,0,69.68,0,"Full season"],[2003,8,"02206","David Toms","United States",3710905,2,7,5.29,0,69.862,0,"Full season"],[2003,9,"06522","Ernie Els","South Africa",3371237,2,7,8.54,0,68.991,0,"Full season"],[2003,10,"20157","Retief Goosen","South Africa",3166373,1,9,6.05,0,69.201,0,"Full season"],[2003,11,"01329","Brad Faxon","United States",2718445,0,8,3.35,0,70.119,0,"Full season"],[2003,12,"20098","Stuart Appleby","Australia",2662538,1,5,3.91,0,70.157,0,"Full season"],[2003,13,"02223","Bob Tway","United States",2601600,1,7,2.95,0,70.479,0,"Full season"],[2003,14,"21961","Charles Howell III","United States",2568955,0,6,3.41,0,70.208,0,"Full season"],[2003,15,"01457","Jay Haas","United States",2563545,0,8,3.09,0,69.911,0,"Full season"],[2003,16,"20094","Jonathan Kaye","United States",2474837,1,8,3.08,0,70.36,0,"Full season"],[2003,17,"10860","Justin Leonard","United States",2450525,1,4,3.36,0,70.173,0,"Full season"],[2003,18,"06251","Chris DiMarco","United States",2350630,0,10,3.1,0,70.292,0,"Full season"],[2003,19,"02239","Scott Verplank","United States",2306714,0,8,3.21,0,69.876,0,"Full season"],[2003,20,"01968","Nick Price","Zimbabwe",2271111,0,6,4.22,0,70.12,0,"Full season"],[2003,21,"07457","Steve Flesch","United States",2269630,1,9,2.2,0,70.518,0,"Full season"],[2003,22,"20498","Briny Baird","United States",2202519,0,7,2.01,0,70.119,0,"Full season"],[2003,23,"20127","Chris Riley","United States",2178133,0,7,2.97,0,70.259,0,"Full season"],[2003,24,"10885","Robert Allenby","Australia",2176452,0,9,3.73,0,69.751,0,"Full season"],[2003,25,"12782","Tim Herron","United States",2176390,0,6,2.29,0,70.366,0,"Full season"],[2003,26,"08075","Jerry Kelly","United States",2158342,0,10,2.94,0,70.5,0,"Full season"],[2003,27,"01381","Fred Funk","United States",2144653,0,9,2.75,0,70.082,0,"Full season"],[2003,28,"01685","J.L. Lewis","United States",2039259,1,6,1.88,0,70.91,0,"Full season"],[2003,29,"02214","Kirk Triplett","United States",2001561,1,5,2.24,0,70.411,0,"Full season"],[2003,30,"24357","K.J. Choi","South Korea",1999663,0,6,3.46,0,70.35,0,"Full season"],[2003,31,"01797","Rocco Mediate","United States",1832656,0,5,2.84,0,70.469,0,"Full season"],[2003,32,"06515","Shaun Micheel","United States",1827000,1,4,2.4,0,70.674,0,"Full season"],[2003,33,"01320","Bob Estes","United States",1824414,0,6,2.58,0,70.062,0,"Full season"],[2003,34,"01226","Fred Couples","United States",1820495,1,4,2.8,0,69.809,0,"Full season"],[2003,35,"20229","Stewart Cink","United States",1781885,0,6,2.26,0,70.081,0,"Full season"],[2003,36,"01948","Tim Petrovic","United States",1739349,0,4,1.69,0,70.286,0,"Full season"],[2003,37,"12680","Shigeki Maruyama","Japan",1669292,1,4,2.65,0,70.76,0,"Full season"],[2003,38,"01810","Phil Mickelson","United States",1623137,0,7,3.98,0,70.249,0,"Full season"],[2003,39,"22913","John Rollins","United States",1612314,0,5,2.13,0,70.972,0,"Full season"],[2003,40,"02104","Jeff Sluman","United States",1609748,0,3,2.14,0,70.302,0,"Full season"],[2003,41,"23621","Rory Sabbatini","Slovakia",1604701,1,5,1.8,0,70.842,0,"Full season"],[2003,42,"01553","John Huston","United States",1565119,1,2,2.19,0,70.565,0,"Full season"],[2003,43,"01388","Robert Gamez","United States",1519804,0,2,1.74,0,70.386,0,"Full season"],[2003,44,"07867","Woody Austin","United States",1518707,0,4,1.27,0,70.742,0,"Full season"],[2003,45,"22046","Geoff Ogilvy","Australia",1477246,0,7,1.81,0,71.193,0,"Full season"],[2003,46,"22621","Ben Curtis","United States",1434911,1,1,2.76,0,71.373,0,"Full season"],[2003,47,"24925","Jonathan Byrd","United States",1430538,0,5,1.97,0,70.763,0,"Full season"],[2003,48,"23541","Ben Crane","United States",1419070,1,3,1.55,0,70.886,0,"Full season"],[2003,49,"11032","Frank Lickliter II","United States",1340436,1,3,1.18,0,71.086,0,"Full season"],[2003,50,"20634","Peter Lonard","Australia",1323594,0,3,2.48,0,70.293,0,"Full season"],[2004,1,"06567","Vijay Singh","Fiji",10905166,9,18,12.97,0,68.839,2.25,"Full season"],[2004,2,"06522","Ernie Els","South Africa",5787225,3,10,11.12,0,68.981,1.899,"Full season"],[2004,3,"01810","Phil Mickelson","United States",5784823,2,13,7.22,0,69.162,1.324,"Full season"],[2004,4,"08793","Tiger Woods","United States",5365472,1,14,11.9,0,69.041,2.382,"Full season"],[2004,5,"20229","Stewart Cink","United States",4450270,2,10,4.81,0,69.816,1.655,"Full season"],[2004,6,"20157","Retief Goosen","South Africa",3885573,2,9,7.74,0,69.316,1.419,"Full season"],[2004,7,"24502","Adam Scott","Australia",3724984,2,7,4.69,0,70.096,1.427,"Full season"],[2004,8,"06004","Stephen Ames","Canada",3303205,1,11,3.71,0,69.897,1.29,"Full season"],[2004,9,"21209","Sergio Garcia","Spain",3239215,2,5,5.46,0,69.803,1.336,"Full season"],[2004,10,"01706","Davis Love III","United States",3075092,0,8,5.61,0,70.134,1.059,"Full season"],[2004,11,"01473","Todd Hamilton","United States",3063778,2,3,3.77,0,71.036,220,"Full season"],[2004,12,"06251","Chris DiMarco","United States",2971842,0,9,3.96,0,70.276,1.063,"Full season"],[2004,13,"20098","Stuart Appleby","Australia",2949235,1,5,4.29,0,70.471,974,"Full season"],[2004,14,"10423","Mike Weir","Canada",2761536,1,7,5.49,0,70.197,782,"Full season"],[2004,15,"20433","Mark Hensby","Australia",2718766,1,8,2.62,0,70.631,602,"Full season"],[2004,16,"23621","Rory Sabbatini","Slovakia",2500397,0,7,2.78,0,70.505,1.154,"Full season"],[2004,17,"08075","Jerry Kelly","United States",2496222,0,8,2.89,0,70.088,1.202,"Full season"],[2004,18,"07457","Steve Flesch","United States",2461787,1,4,2.7,0,70.846,476,"Full season"],[2004,19,"24024","Zach Johnson","United States",2417685,1,5,2.56,0,70.176,1.206,"Full season"],[2004,20,"02239","Scott Verplank","United States",2365592,0,6,3.52,0,69.917,1.49,"Full season"],[2004,21,"01249","John Daly","United States",2359507,1,5,2.55,0,70.816,803,"Full season"],[2004,22,"02206","David Toms","United States",2357531,1,7,3.57,0,70.045,947,"Full season"],[2004,23,"12680","Shigeki Maruyama","Japan",2301692,0,6,3.11,0,70.226,1.048,"Full season"],[2004,24,"12510","Chad Campbell","United States",2264985,1,4,3.7,0,70.808,525,"Full season"],[2004,25,"01381","Fred Funk","United States",2103731,1,6,2.22,0,70.448,617,"Full season"],[2004,26,"24357","K.J. Choi","South Korea",2077775,0,7,3.28,0,70.536,400,"Full season"],[2004,27,"01457","Jay Haas","United States",2071626,0,8,3.25,0,70.055,1.261,"Full season"],[2004,28,"19825","Darren Clarke","Northern Ireland",2009819,0,4,4.26,0,70.325,707,"Full season"],[2004,29,"12823","Carlos Franco","Paraguay",1955395,1,4,1.77,0,70.768,645,"Full season"],[2004,30,"01945","Kenny Perry","United States",1952043,0,7,3.68,0,70.256,1.157,"Full season"],[2004,31,"20572","Rod Pampling","Australia",1737725,1,2,2.21,0,70.753,437,"Full season"],[2004,32,"12782","Tim Herron","United States",1727577,0,4,1.98,0,70.787,738,"Full season"],[2004,33,"21961","Charles Howell III","United States",1703485,0,5,2.15,0,70.773,543,"Full season"],[2004,34,"20094","Jonathan Kaye","United States",1695332,1,2,2.47,0,71.468,7,"Full season"],[2004,35,"23983","Luke Donald","England",1646268,0,4,3.06,0,70.114,1.078,"Full season"],[2004,36,"21959","Ted Purdy","United States",1636876,0,4,1.08,0,70.686,551,"Full season"],[2004,37,"23320","Ryan Palmer","United States",1592344,1,2,1.51,0,71.273,97,"Full season"],[2004,38,"02214","Kirk Triplett","United States",1566426,0,6,2.26,0,70.314,805,"Full season"],[2004,39,"23623","Bo Van Pelt","United States",1553825,0,5,1.42,0,70.245,1.146,"Full season"],[2004,40,"12660","Jesper Parnevik","Sweden",1550135,0,5,1.74,0,70.199,816,"Full season"],[2004,41,"02101","Joey Sindelar","United States",1536881,1,2,1.58,0,71.111,362,"Full season"],[2004,42,"10860","Justin Leonard","United States",1531023,0,3,2.62,0,70.609,563,"Full season"],[2004,43,"01724","Jeff Maggert","United States",1527884,0,5,2.18,0,70.68,140,"Full season"],[2004,44,"10885","Robert Allenby","Australia",1513537,0,5,2.89,0,70.322,733,"Full season"],[2004,45,"07867","Woody Austin","United States",1495980,1,3,1.36,0,71.044,160,"Full season"],[2004,46,"02246","Duffy Waldorf","United States",1487912,0,5,1.96,0,70.602,832,"Full season"],[2004,47,"01941","Tom Pernice Jr.","United States",1475274,0,5,1.38,0,70.957,363,"Full season"],[2004,48,"21805","Harrison Frazar","United States",1446764,0,4,1.44,0,70.9,489,"Full season"],[2004,49,"21949","Joe Ogilvie","United States",1443363,0,4,1.25,0,70.933,311,"Full season"],[2004,50,"01226","Fred Couples","United States",1396109,0,3,2.99,0,70.918,599,"Full season"],[2005,1,"08793","Tiger Woods","United States",10628024,6,13,17.39,0,68.655,2.401,"Full season"],[2005,2,"06567","Vijay Singh","Fiji",8017336,4,18,10.06,0,69.04,2.189,"Full season"],[2005,3,"01810","Phil Mickelson","United States",5699605,4,9,8.4,0,69.386,1.525,"Full season"],[2005,4,"10809","Jim Furyk","United States",4255369,1,10,5.91,0,69.274,1.846,"Full season"],[2005,5,"02206","David Toms","United States",3962013,1,11,4.34,0,69.66,1.226,"Full season"],[2005,6,"01945","Kenny Perry","United States",3607155,2,7,4.68,0,69.477,1.672,"Full season"],[2005,7,"06251","Chris DiMarco","United States",3562548,0,6,4.69,0,70.405,815,"Full season"],[2005,8,"20157","Retief Goosen","South Africa",3494106,1,8,8.02,0,70.055,671,"Full season"],[2005,9,"01142","Bart Bryant","United States",3249136,2,4,3.48,0,70.187,1.07,"Full season"],[2005,10,"21209","Sergio Garcia","Spain",3213375,1,8,7.38,0,69.639,1.513,"Full season"],[2005,11,"01381","Fred Funk","United States",2830046,1,3,2.71,0,70.375,601,"Full season"],[2005,12,"10860","Justin Leonard","United States",2665131,2,4,2.87,0,70.168,547,"Full season"],[2005,13,"01706","Davis Love III","United States",2658779,0,9,3.98,0,69.839,1.14,"Full season"],[2005,14,"20766","Padraig Harrington","Ireland",2615731,2,4,4.33,0,70.843,289,"Full season"],[2005,15,"24502","Adam Scott","Australia",2592255,0,6,5.07,0,70.198,1.047,"Full season"],[2005,16,"02239","Scott Verplank","United States",2580213,0,5,3.3,0,69.985,974,"Full season"],[2005,17,"23983","Luke Donald","England",2480562,0,5,4.52,0,69.329,1.796,"Full season"],[2005,18,"24140","Sean O'Hair","United States",2461482,1,4,2.74,0,70.613,362,"Full season"],[2005,19,"23541","Ben Crane","United States",2457329,1,6,2.86,0,69.7,939,"Full season"],[2005,20,"12510","Chad Campbell","United States",2391432,0,5,2.85,0,70.295,694,"Full season"],[2005,21,"23135","Tim Clark","South Africa",2310037,0,6,3.8,0,70.067,671,"Full season"],[2005,22,"01766","Billy Mayfair","United States",2236455,0,6,1.72,0,70.335,904,"Full season"],[2005,23,"20098","Stuart Appleby","Australia",2202506,1,4,2.99,0,70.543,712,"Full season"],[2005,24,"21959","Ted Purdy","United States",2198368,1,3,1.95,0,70.831,127,"Full season"],[2005,25,"01161","Mark Calcavecchia","United States",2185310,1,5,2,0,70.49,718,"Full season"],[2005,26,"01139","Olin Browne","United States",2171928,1,2,1.75,0,70.691,497,"Full season"],[2005,27,"06573","Brandt Jobe","United States",2133149,0,6,2.53,0,70.43,707,"Full season"],[2005,28,"12782","Tim Herron","United States",2103550,0,7,2.44,0,70.106,1.247,"Full season"],[2005,29,"21961","Charles Howell III","United States",2074329,0,6,2.25,0,70.367,988,"Full season"],[2005,30,"25900","Lucas Glover","United States",2050068,1,7,1.88,0,70.833,522,"Full season"],[2005,31,"25345","Carl Pettersson","Sweden",1993851,1,3,2.21,0,70.877,394,"Full season"],[2005,32,"12680","Shigeki Maruyama","Japan",1933049,0,5,2.63,0,70.176,1.182,"Full season"],[2005,33,"22046","Geoff Ogilvy","Australia",1931676,1,5,2.28,0,70.365,540,"Full season"],[2005,34,"20634","Peter Lonard","Australia",1897998,1,3,2.44,0,70.878,233,"Full season"],[2005,35,"24507","Jason Bohn","United States",1888568,1,3,1.57,0,70.475,670,"Full season"],[2005,36,"23325","Vaughn Taylor","United States",1827574,1,4,1.69,0,70.765,363,"Full season"],[2005,37,"21949","Joe Ogilvie","United States",1819547,0,5,1.64,0,70.852,92,"Full season"],[2005,38,"01226","Fred Couples","United States",1804179,0,4,3.33,0,70.502,553,"Full season"],[2005,39,"24024","Zach Johnson","United States",1796441,0,5,2.25,0,70.38,922,"Full season"],[2005,40,"24357","K.J. Choi","South Korea",1765374,1,3,2.95,0,70.439,599,"Full season"],[2005,41,"06373","José María Olazábal","Spain",1764227,0,6,3.3,0,70.111,1.14,"Full season"],[2005,42,"01249","John Daly","United States",1759921,0,2,3.07,0,71.516,351,"Full season"],[2005,43,"20229","Stewart Cink","United States",1733049,0,5,3.32,0,70.32,823,"Full season"],[2005,44,"01948","Tim Petrovic","United States",1711229,1,3,1.34,0,71.227,50,"Full season"],[2005,45,"01329","Brad Faxon","United States",1700535,1,4,1.86,0,70.57,855,"Full season"],[2005,46,"01677","Tom Lehman","United States",1655416,0,4,2.66,0,70.639,248,"Full season"],[2005,47,"06522","Ernie Els","South Africa",1627184,0,5,7.88,0,0,0,"Full season"],[2005,48,"20572","Rod Pampling","Australia",1613815,0,6,2.36,0,70.634,822,"Full season"],[2005,49,"01941","Tom Pernice Jr.","United States",1608057,0,2,1.76,0,70.637,724,"Full season"],[2005,50,"22293","Heath Slocum","United States",1606185,1,4,1.4,0,70.733,508,"Full season"],[2006,1,"08793","Tiger Woods","United States",9941563,8,11,20.83,0,68.115,3.443,"Full season"],[2006,2,"10809","Jim Furyk","United States",7213316,2,13,9.06,0,68.865,2.548,"Full season"],[2006,3,"24502","Adam Scott","Australia",4978858,1,10,7.16,0,68.946,2.101,"Full season"],[2006,4,"06567","Vijay Singh","Fiji",4602416,1,13,5.76,0,69.619,1.725,"Full season"],[2006,5,"22046","Geoff Ogilvy","Australia",4354969,2,5,5.24,0,70.295,924,"Full season"],[2006,6,"01810","Phil Mickelson","United States",4256505,2,8,7.38,0,69.5,1.955,"Full season"],[2006,7,"22378","Trevor Immelman","South Africa",3844189,1,8,4.63,0,69.507,1.704,"Full season"],[2006,8,"20098","Stuart Appleby","Australia",3470457,2,6,3.38,0,70.251,1.363,"Full season"],[2006,9,"23983","Luke Donald","England",3177408,1,10,5.4,0,69.166,2.046,"Full season"],[2006,10,"23322","Brett Wetterich","United States",3023185,1,6,2.59,0,70.725,628,"Full season"],[2006,11,"02206","David Toms","United States",2911187,1,6,3.5,0,70.089,1.249,"Full season"],[2006,12,"23621","Rory Sabbatini","Slovakia",2861751,1,5,2.6,0,70.292,749,"Full season"],[2006,13,"06621","Joe Durant","United States",2811139,1,7,2.96,0,70.773,590,"Full season"],[2006,14,"12510","Chad Campbell","United States",2811067,1,5,3.14,0,70.585,411,"Full season"],[2006,15,"20229","Stewart Cink","United States",2755911,0,7,3.21,0,69.66,1.346,"Full season"],[2006,16,"01706","Davis Love III","United States",2747206,1,4,3.77,0,70.785,853,"Full season"],[2006,17,"20572","Rod Pampling","Australia",2664673,1,6,2.96,0,70.443,923,"Full season"],[2006,18,"25345","Carl Pettersson","Sweden",2647982,1,6,2.75,0,70.654,789,"Full season"],[2006,19,"20157","Retief Goosen","South Africa",2617453,0,6,5.93,0,70.291,1.144,"Full season"],[2006,20,"07749","Brett Quigley","United States",2617419,0,10,2.06,0,70.025,1.248,"Full season"],[2006,21,"25900","Lucas Glover","United States",2587982,0,9,2.63,0,70.263,1.263,"Full season"],[2006,22,"12602","Dean Wilson","United States",2509857,1,6,1.94,0,70.67,492,"Full season"],[2006,23,"20628","Arron Oberholser","United States",2467772,1,4,2.59,0,69.858,1.095,"Full season"],[2006,24,"24024","Zach Johnson","United States",2452250,0,4,2.32,0,70.42,806,"Full season"],[2006,25,"01941","Tom Pernice Jr.","United States",2396548,0,7,2.04,0,70.321,947,"Full season"],[2006,26,"06004","Stephen Ames","Canada",2395155,1,3,2.76,0,70.436,1.207,"Full season"],[2006,27,"24357","K.J. Choi","South Korea",2376548,1,4,3.06,0,70.213,879,"Full season"],[2006,28,"06522","Ernie Els","South Africa",2326220,0,8,6.21,0,69.756,1.363,"Full season"],[2006,29,"23353","J.J. Henry","United States",2301480,1,5,2.03,0,70.528,828,"Full season"],[2006,30,"22621","Ben Curtis","United States",2256326,2,2,1.89,0,71.192,67,"Full season"],[2006,31,"06373","José María Olazábal","Spain",2120422,0,4,3.68,0,70.183,1.213,"Full season"],[2006,32,"23135","Tim Clark","South Africa",1974931,0,4,3.35,0,70.577,771,"Full season"],[2006,33,"10423","Mike Weir","Canada",1883724,0,6,2.54,0,70.255,765,"Full season"],[2006,34,"06527","Steve Stricker","United States",1811811,0,7,2.04,0,69.372,1.489,"Full season"],[2006,35,"23325","Vaughn Taylor","United States",1783945,0,6,1.94,0,70.457,1.058,"Full season"],[2006,36,"27120","Troy Matteson","United States",1778597,1,5,1.72,0,71.335,192,"Full season"],[2006,37,"12782","Tim Herron","United States",1776142,1,2,2.02,0,71.269,110,"Full season"],[2006,38,"27770","Camilo Villegas","Colombia",1742112,0,4,1.35,0,70.749,644,"Full season"],[2006,39,"08075","Jerry Kelly","United States",1737800,0,5,1.5,0,70.853,478,"Full season"],[2006,40,"02239","Scott Verplank","United States",1729319,0,4,2.44,0,70.67,654,"Full season"],[2006,41,"23718","Nathan Green","Australia",1700803,0,6,1.79,0,70.871,422,"Full season"],[2006,42,"01677","Tom Lehman","United States",1692081,0,4,2.22,0,70.797,571,"Full season"],[2006,43,"24507","Jason Bohn","United States",1676893,0,3,1.8,0,70.557,902,"Full season"],[2006,44,"11032","Frank Lickliter II","United States",1655678,0,6,1.35,0,70.528,830,"Full season"],[2006,45,"20645","John Senden","Australia",1650674,1,3,1.95,0,70.478,885,"Full season"],[2006,46,"06515","Shaun Micheel","United States",1632842,0,2,2.09,0,70.636,674,"Full season"],[2006,47,"22405","Justin Rose","England",1629288,0,5,2.39,0,70.401,725,"Full season"],[2006,48,"01381","Fred Funk","United States",1579837,0,3,1.85,0,70.556,702,"Full season"],[2006,49,"21209","Sergio Garcia","Spain",1560733,0,5,5.26,0,70.567,999,"Full season"],[2006,50,"26420","Richard Johnson","Sweden",1555376,0,3,1.37,0,70.732,608,"Full season"],[2007,1,"08793","Tiger Woods","United States",10867052,7,12,20.4,53607,67.794,3.092,"Full season"],[2007,2,"01810","Phil Mickelson","United States",5819988,3,7,9.04,27394,69.456,1.597,"Full season"],[2007,3,"06567","Vijay Singh","Fiji",4728376,2,7,5.28,21193,69.489,1.379,"Full season"],[2007,4,"06527","Steve Stricker","United States",4663077,1,9,6.65,25126,69.394,1.486,"Full season"],[2007,5,"24357","K.J. Choi","South Korea",4587859,2,7,5.31,21750,69.611,1.392,"Full season"],[2007,6,"23621","Rory Sabbatini","Slovakia",4550040,1,10,5.15,21491,69.741,1.265,"Full season"],[2007,7,"10809","Jim Furyk","United States",4154046,1,8,6.86,19214,69.474,1.119,"Full season"],[2007,8,"24024","Zach Johnson","United States",3922338,2,5,4.33,19214,69.906,1.074,"Full season"],[2007,9,"21209","Sergio Garcia","Spain",3721185,0,7,4.96,15824,69.481,1.461,"Full season"],[2007,10,"22371","Aaron Baddeley","Australia",3441119,1,7,4.06,17703,70.088,1.064,"Full season"],[2007,11,"24502","Adam Scott","Australia",3413185,1,6,6.05,15630,70.008,1.234,"Full season"],[2007,12,"02239","Scott Verplank","United States",3114289,1,10,3.33,13403,69.693,943,"Full season"],[2007,13,"01161","Mark Calcavecchia","United States",2993332,1,6,2.41,16285,70.579,504,"Full season"],[2007,14,"22046","Geoff Ogilvy","Australia",2943203,0,7,4.87,13390,70.085,821,"Full season"],[2007,15,"07867","Woody Austin","United States",2887596,1,3,2.8,13240,70.419,319,"Full season"],[2007,16,"24781","Hunter Mahan","United States",2858995,1,6,2.74,13380,69.99,632,"Full season"],[2007,17,"27649","Brandt Snedeker","United States",2836643,1,6,2.43,13277,70.089,672,"Full season"],[2007,18,"21961","Charles Howell III","United States",2832091,1,5,2.64,13427,70.655,368,"Full season"],[2007,19,"22405","Justin Rose","England",2705875,0,7,6.02,12682,69.301,878,"Full season"],[2007,20,"06522","Ernie Els","South Africa",2705715,0,5,6.6,12112,69.294,1.578,"Full season"],[2007,21,"20766","Padraig Harrington","Ireland",2658283,1,3,5.76,10208,69.822,926,"Full season"],[2007,22,"23135","Tim Clark","South Africa",2615152,0,6,2.98,10817,69.877,988,"Full season"],[2007,23,"26289","Boo Weekley","United States",2613211,1,5,2.53,10790,70.303,627,"Full season"],[2007,24,"22913","John Rollins","United States",2488891,0,4,1.91,10577,70.419,517,"Full season"],[2007,25,"20229","Stewart Cink","United States",2483146,0,6,3.34,10227,70.133,668,"Full season"],[2007,26,"07457","Steve Flesch","United States",2288899,2,3,1.57,5314,70.958,7,"Full season"],[2007,27,"10885","Robert Allenby","Australia",2219538,0,8,2.37,10470,70.462,670,"Full season"],[2007,28,"23322","Brett Wetterich","United States",2208282,0,4,2.82,9854,70.902,134,"Full season"],[2007,29,"23983","Luke Donald","England",2190053,0,5,4.12,9075,70.118,927,"Full season"],[2007,30,"22293","Heath Slocum","United States",2184379,0,6,1.77,9132,69.948,879,"Full season"],[2007,31,"06004","Stephen Ames","Canada",2103426,1,4,2.79,5100,70.09,580,"Full season"],[2007,32,"02206","David Toms","United States",2095837,0,7,2.65,8859,69.883,890,"Full season"],[2007,33,"10860","Justin Leonard","United States",2079248,1,5,1.58,3998,70.527,517,"Full season"],[2007,34,"25345","Carl Pettersson","Sweden",2040938,0,6,2.02,7309,70.453,821,"Full season"],[2007,35,"10423","Mike Weir","Canada",1986053,1,4,2.75,4003,70.151,711,"Full season"],[2007,36,"08075","Jerry Kelly","United States",1978034,0,7,1.96,8259,70.313,621,"Full season"],[2007,37,"20104","Ken Duke","United States",1927102,0,5,1.4,6656,70.628,539,"Full season"],[2007,38,"24140","Sean O'Hair","United States",1921226,0,5,1.89,6292,70.19,1.152,"Full season"],[2007,39,"20645","John Senden","Australia",1899558,0,5,2.15,6268,70.566,528,"Full season"],[2007,40,"21528","Henrik Stenson","Sweden",1897554,1,2,4.23,6948,70.935,288,"Full season"],[2007,41,"27770","Camilo Villegas","Colombia",1866961,0,6,2.1,10337,70.163,949,"Full season"],[2007,42,"24925","Jonathan Byrd","United States",1854906,1,4,2.01,9969,70.488,510,"Full season"],[2007,43,"27095","Nick Watney","United States",1838629,1,3,1.24,6881,70.789,256,"Full season"],[2007,44,"01766","Billy Mayfair","United States",1814518,0,6,1.44,6309,70.444,604,"Full season"],[2007,45,"20098","Stuart Appleby","Australia",1803385,0,3,2.74,7189,70.477,339,"Full season"],[2007,46,"22378","Trevor Immelman","South Africa",1801647,0,4,3.86,6931,70.731,482,"Full season"],[2007,47,"20628","Arron Oberholser","United States",1797458,0,5,2.91,8811,69.807,1.183,"Full season"],[2007,48,"20850","Daniel Chopra","Sweden",1755110,1,3,1.37,2919,70.948,402,"Full season"],[2007,49,"12510","Chad Campbell","United States",1701242,1,2,1.59,3144,71.309,237,"Full season"],[2007,50,"12716","Charley Hoffman","United States",1689366,1,2,1.29,6457,71.229,34,"Full season"],[2008,1,"06567","Vijay Singh","Fiji",6601094,3,8,6.63,41635,69.58,1.467,"Full season"],[2008,2,"08793","Tiger Woods","United States",5775000,4,6,11.66,22695,0,0,"Full season"],[2008,3,"01810","Phil Mickelson","United States",5188875,2,8,6.87,31192,69.167,1.818,"Full season"],[2008,4,"21209","Sergio Garcia","Spain",4858224,1,6,7.99,31726,69.117,1.548,"Full season"],[2008,5,"01945","Kenny Perry","United States",4663794,3,7,3.83,29468,69.826,1.076,"Full season"],[2008,6,"29718","Anthony Kim","United States",4656265,2,8,4.38,30847,69.279,1.479,"Full season"],[2008,7,"27770","Camilo Villegas","Colombia",4422641,2,7,4.82,34541,69.49,1.254,"Full season"],[2008,8,"20766","Padraig Harrington","Ireland",4313551,2,6,6.83,17668,69.277,905,"Full season"],[2008,9,"20229","Stewart Cink","United States",3979301,1,7,3.77,23908,70.019,1.125,"Full season"],[2008,10,"10860","Justin Leonard","United States",3943542,1,8,3.19,25997,69.772,1.138,"Full season"],[2008,11,"10885","Robert Allenby","Australia",3606700,0,9,3.01,20205,69.728,1.407,"Full season"],[2008,12,"10809","Jim Furyk","United States",3455714,0,9,4.29,24868,69.694,1.287,"Full season"],[2008,13,"21350","Ryuji Imada","Japan",3029363,1,5,1.91,18856,70.557,644,"Full season"],[2008,14,"10423","Mike Weir","Canada",3020135,0,8,3.29,23033,70.144,926,"Full season"],[2008,15,"22046","Geoff Ogilvy","Australia",2880099,1,6,4.45,15304,70.253,810,"Full season"],[2008,16,"24357","K.J. Choi","South Korea",2683442,1,5,3.72,21889,70.259,885,"Full season"],[2008,17,"22621","Ben Curtis","United States",2615798,0,5,3.14,20956,69.981,761,"Full season"],[2008,18,"06595","Kevin Sutherland","United States",2581311,0,6,2.22,19242,70.067,1.092,"Full season"],[2008,19,"22378","Trevor Immelman","South Africa",2566199,1,3,3.4,18861,70.519,6,"Full season"],[2008,20,"06522","Ernie Els","South Africa",2537290,1,5,4.66,18723,69.898,611,"Full season"],[2008,21,"25345","Carl Pettersson","Sweden",2512538,1,5,2.03,19315,70.245,754,"Full season"],[2008,22,"20098","Stuart Appleby","Australia",2484630,0,7,2.61,18977,69.726,1.075,"Full season"],[2008,23,"06527","Steve Stricker","United States",2438304,0,6,3.77,19163,69.976,908,"Full season"],[2008,24,"12510","Chad Campbell","United States",2404770,0,7,1.96,15686,70.04,901,"Full season"],[2008,25,"26289","Boo Weekley","United States",2398751,1,5,2.31,14342,70.414,550,"Full season"],[2008,26,"23788","D.J. Trahan","United States",2304368,1,4,1.76,17274,70.329,523,"Full season"],[2008,27,"06004","Stephen Ames","Canada",2285707,0,7,2.71,12853,69.988,1.039,"Full season"],[2008,28,"20104","Ken Duke","United States",2238885,0,5,1.62,16886,70.38,597,"Full season"],[2008,29,"06575","Dudley Hart","United States",2218817,0,6,2.15,18620,70.587,532,"Full season"],[2008,30,"24781","Hunter Mahan","United States",2208855,0,5,2.39,18312,70.171,1.006,"Full season"],[2008,31,"19846","Brian Gay","United States",2205513,1,6,1.32,11465,70.015,716,"Full season"],[2008,32,"27141","J.B. Holmes","United States",2166131,1,3,1.75,12500,70.596,524,"Full season"],[2008,33,"07867","Woody Austin","United States",2146431,0,6,2.08,11067,70.874,631,"Full season"],[2008,34,"28158","Steve Marino","United States",2094267,0,6,1.33,12160,70.071,767,"Full season"],[2008,35,"24140","Sean O'Hair","United States",2089857,1,3,2.08,9029,70.323,411,"Full season"],[2008,36,"25562","Andres Romero","Argentina",2064612,1,3,2.81,15609,70.816,406,"Full season"],[2008,37,"20498","Briny Baird","United States",2039808,0,3,1.3,15865,70.187,700,"Full season"],[2008,38,"25190","Jeff Quinney","United States",1999371,0,3,1.53,7329,70.788,415,"Full season"],[2008,39,"24502","Adam Scott","Australia",1979160,1,3,3.8,11777,70.06,859,"Full season"],[2008,40,"20574","Mathew Goggin","Australia",1969962,0,5,2.1,10734,70.391,826,"Full season"],[2008,41,"28780","Nicholas Thompson","United States",1869329,0,6,1.05,11302,71.039,118,"Full season"],[2008,42,"30925","Dustin Johnson","United States",1789895,1,3,1.11,2679,71.223,280,"Full season"],[2008,43,"24361","Pat Perez","United States",1756038,0,6,1.6,7611,70.08,1.064,"Full season"],[2008,44,"01766","Billy Mayfair","United States",1750683,0,4,1.48,16805,70.512,377,"Full season"],[2008,45,"23135","Tim Clark","South Africa",1722030,0,3,2.95,15649,70.311,641,"Full season"],[2008,46,"01142","Bart Bryant","United States",1719153,0,2,1.54,11356,70.205,689,"Full season"],[2008,47,"20572","Rod Pampling","Australia",1702952,0,5,2.16,6856,70.812,225,"Full season"],[2008,48,"01706","Davis Love III","United States",1695237,1,3,1.68,1512,70.297,664,"Full season"],[2008,49,"22371","Aaron Baddeley","Australia",1665587,0,3,2.7,11250,70.196,885,"Full season"],[2008,50,"08075","Jerry Kelly","United States",1652400,0,4,1.39,11185,70.941,200,"Full season"],[2009,1,"08793","Tiger Woods","United States",10508163,6,14,15.2,4000,68.052,3.189,"Full season"],[2009,2,"06527","Steve Stricker","United States",6332636,3,11,6.89,2750,69.286,1.828,"Full season"],[2009,3,"01810","Phil Mickelson","United States",5332755,3,7,8.54,2920,70.218,816,"Full season"],[2009,4,"24024","Zach Johnson","United States",4714813,2,9,3.75,2073,69.601,1.545,"Full season"],[2009,5,"01945","Kenny Perry","United States",4445562,2,8,4.91,1450,69.789,1.206,"Full season"],[2009,6,"24140","Sean O'Hair","United States",4316493,1,9,4.36,2200,69.947,1.17,"Full season"],[2009,7,"10809","Jim Furyk","United States",3946515,0,11,5.7,2438,69.477,1.69,"Full season"],[2009,8,"22046","Geoff Ogilvy","Australia",3866270,2,5,4.63,713,70.316,1.06,"Full season"],[2009,9,"25900","Lucas Glover","United States",3692580,1,6,3.95,660,69.97,768,"Full season"],[2009,10,"24663","Y.E. Yang","South Korea",3489516,2,4,3.07,565,70.46,383,"Full season"],[2009,11,"20157","Retief Goosen","South Africa",3232650,1,5,4.06,640,69.961,1.011,"Full season"],[2009,12,"27095","Nick Watney","United States",3221421,1,4,3.02,748,70.071,1.113,"Full season"],[2009,13,"19846","Brian Gay","United States",3201295,2,4,2.46,573,70.4,632,"Full season"],[2009,14,"02206","David Toms","United States",3047198,0,7,2.64,608,69.73,1.15,"Full season"],[2009,15,"30925","Dustin Johnson","United States",2977901,1,5,2.29,700,70.414,853,"Full season"],[2009,16,"24781","Hunter Mahan","United States",2941349,0,6,3.18,515,69.691,1.255,"Full season"],[2009,17,"20229","Stewart Cink","United States",2821030,1,4,4.38,505,70.465,287,"Full season"],[2009,18,"23621","Rory Sabbatini","Slovakia",2752291,1,4,2.07,1426,70.544,713,"Full season"],[2009,19,"25396","Kevin Na","United States",2724825,0,9,2.03,545,70.128,938,"Full season"],[2009,20,"20766","Padraig Harrington","Ireland",2628377,0,6,5.75,2050,70.229,1.21,"Full season"],[2009,21,"20848","Ángel Cabrera","Argentina",2625472,1,3,3.6,558,70.175,544,"Full season"],[2009,22,"25364","Paul Casey","England",2582181,1,3,5.55,1161,0,0,"Full season"],[2009,23,"08075","Jerry Kelly","United States",2562648,1,6,1.77,570,70.119,780,"Full season"],[2009,24,"23108","Matt Kuchar","United States",2489193,1,5,2.14,1364,70.112,1.158,"Full season"],[2009,25,"24138","Ian Poulter","England",2431001,0,5,4.75,1532,70.101,1.206,"Full season"],[2009,26,"10423","Mike Weir","Canada",2379422,0,6,2.78,468,70.228,780,"Full season"],[2009,27,"20645","John Senden","Australia",2305492,0,7,1.86,560,70.057,1.06,"Full season"],[2009,28,"22913","John Rollins","United States",2269475,1,4,1.66,1266,71.243,11,"Full season"],[2009,29,"23135","Tim Clark","South Africa",2235105,0,5,2.74,1395,69.658,1.261,"Full season"],[2009,30,"10860","Justin Leonard","United States",2232378,0,6,2.51,1371,70.094,951,"Full season"],[2009,31,"26596","Ryan Moore","United States",2222871,1,6,2.31,1215,70.598,444,"Full season"],[2009,32,"22293","Heath Slocum","United States",2195565,1,4,1.94,1855,70.612,97,"Full season"],[2009,33,"25686","Jason Dufner","United States",2190792,0,6,2.05,855,70.307,624,"Full season"],[2009,34,"23983","Luke Donald","England",2174947,0,6,3.22,458,70.012,1.069,"Full season"],[2009,35,"28158","Steve Marino","United States",2161539,0,5,1.69,698,69.903,1.02,"Full season"],[2009,36,"06522","Ernie Els","South Africa",2147157,0,7,4.27,690,70.212,921,"Full season"],[2009,37,"06004","Stephen Ames","Canada",2131538,1,5,2.22,1102,70.248,754,"Full season"],[2009,38,"02239","Scott Verplank","United States",2092114,0,6,2.16,1245,70.037,887,"Full season"],[2009,39,"29718","Anthony Kim","United States",1972155,0,3,3.65,1420,70.507,479,"Full season"],[2009,40,"23623","Bo Van Pelt","United States",1945307,1,5,1.13,1195,70.357,701,"Full season"],[2009,41,"12716","Charley Hoffman","United States",1894925,0,4,1.35,1393,70.438,609,"Full season"],[2009,42,"10885","Robert Allenby","Australia",1890946,0,3,3.95,1326,70.067,987,"Full season"],[2009,43,"21753","Brian Davis","England",1874318,0,4,1.12,1045,70.688,297,"Full season"],[2009,44,"21878","Mark Wilson","United States",1838414,1,3,1.5,1438,70.313,552,"Full season"],[2009,45,"27770","Camilo Villegas","Colombia",1804981,0,4,3.66,1336,70.29,825,"Full season"],[2009,46,"21961","Charles Howell III","United States",1804460,0,3,1.21,1202,70.459,601,"Full season"],[2009,47,"26851","Marc Leishman","Australia",1742243,0,3,1.5,593,70.587,353,"Full season"],[2009,48,"12510","Chad Campbell","United States",1725237,0,3,2.15,1043,70.43,602,"Full season"],[2009,49,"24361","Pat Perez","United States",1720360,1,2,1.61,1233,70.864,445,"Full season"],[2009,50,"27060","John Mallinger","United States",1717140,0,4,1.41,1037,70.73,358,"Full season"],[2010,1,"23108","Matt Kuchar","United States",4910477,1,11,4.9,2728,69.606,1.461,"Full season"],[2010,2,"10809","Jim Furyk","United States",4809622,3,7,6.44,2980,69.828,1.564,"Full season"],[2010,3,"06522","Ernie Els","South Africa",4558861,2,7,4.98,1438,69.843,1.322,"Full season"],[2010,4,"30925","Dustin Johnson","United States",4473122,2,7,4.68,2493,70.135,979,"Full season"],[2010,5,"06527","Steve Stricker","United States",4190235,2,9,6.39,2028,69.66,1.818,"Full season"],[2010,6,"01810","Phil Mickelson","United States",3821733,1,6,7.01,843,69.966,1.001,"Full season"],[2010,7,"23983","Luke Donald","England",3665234,0,7,5.8,2700,69.85,1.493,"Full season"],[2010,8,"25364","Paul Casey","England",3613194,0,7,6.14,2250,69.72,1.411,"Full season"],[2010,9,"22405","Justin Rose","England",3603331,2,4,3.47,718,69.885,1.195,"Full season"],[2010,10,"24781","Hunter Mahan","United States",3574550,2,3,4.19,678,70.476,665,"Full season"],[2010,11,"23135","Tim Clark","South Africa",3530002,1,7,3.58,593,70.246,832,"Full season"],[2010,12,"28475","Jeff Overton","United States",3456356,0,6,2.53,480,70.497,630,"Full season"],[2010,13,"23623","Bo Van Pelt","United States",3336258,0,8,2.81,445,69.955,1.192,"Full season"],[2010,14,"20157","Retief Goosen","South Africa",3218089,0,10,4.22,1360,69.718,1.598,"Full season"],[2010,15,"25804","Bubba Watson","United States",3198998,1,4,3.46,600,70.229,695,"Full season"],[2010,16,"27770","Camilo Villegas","Colombia",3035523,1,7,3.2,623,70.425,691,"Full season"],[2010,17,"23320","Ryan Palmer","United States",2985296,1,5,2.27,595,70.824,294,"Full season"],[2010,18,"10885","Robert Allenby","Australia",2974997,0,5,3.76,500,70.131,1.156,"Full season"],[2010,19,"24024","Zach Johnson","United States",2916993,1,3,3.76,683,70.527,792,"Full season"],[2010,20,"24924","Bill Haas","United States",2905136,2,4,2.26,1565,70.308,918,"Full season"],[2010,21,"28089","Jason Day","Australia",2904327,1,5,3.13,1660,70.274,738,"Full season"],[2010,22,"32102","Rickie Fowler","United States",2857108,0,7,3.55,1564,70.429,793,"Full season"],[2010,23,"23541","Ben Crane","United States",2841500,1,5,3.11,550,70.234,862,"Full season"],[2010,24,"29718","Anthony Kim","United States",2574921,1,4,3.5,1328,0,0,"Full season"],[2010,25,"12716","Charley Hoffman","United States",2559646,1,5,2.55,2500,70.254,995,"Full season"],[2010,26,"28237","Rory McIlroy","Northern Ireland",2554280,1,5,5.69,1489,70.351,714,"Full season"],[2010,27,"27095","Nick Watney","United States",2536714,0,8,3.26,880,70.291,915,"Full season"],[2010,28,"24502","Adam Scott","Australia",2489402,1,4,3.67,640,70.468,862,"Full season"],[2010,29,"22046","Geoff Ogilvy","Australia",2393045,1,2,3.69,753,70.764,735,"Full season"],[2010,30,"22293","Heath Slocum","United States",2387687,1,5,2.37,1222,70.673,580,"Full season"],[2010,31,"27141","J.B. Holmes","United States",2386248,0,3,1.97,1501,70.089,936,"Full season"],[2010,32,"26596","Ryan Moore","United States",2374823,0,6,2.82,613,70.623,687,"Full season"],[2010,33,"24357","K.J. Choi","South Korea",2199962,0,4,2.77,718,70.099,984,"Full season"],[2010,34,"23638","Brendon de Jonge","Zimbabwe",2167978,0,7,1.45,1170,70.344,762,"Full season"],[2010,35,"27936","Martin Laird","Scotland",2137928,0,4,2.65,1005,71.158,145,"Full season"],[2010,36,"24138","Ian Poulter","England",2079664,1,2,5.73,1396,71.211,335,"Full season"],[2010,37,"25396","Kevin Na","United States",2021815,0,4,2.11,570,70.314,854,"Full season"],[2010,38,"20098","Stuart Appleby","Australia",1965825,1,3,1.89,1157,70.954,130,"Full season"],[2010,39,"25345","Carl Pettersson","Sweden",1934465,1,4,1.41,1332,70.552,554,"Full season"],[2010,40,"24507","Jason Bohn","United States",1904763,1,2,1.26,1079,70.856,430,"Full season"],[2010,41,"24140","Sean O'Hair","United States",1859040,0,3,3,1206,70.603,615,"Full season"],[2010,42,"23325","Vaughn Taylor","United States",1838861,0,6,1.46,1495,70.794,387,"Full season"],[2010,43,"24846","Ricky Barnes","United States",1835195,0,6,1.82,1027,70.47,604,"Full season"],[2010,44,"21731","Freddie Jacobson","Sweden",1666252,0,3,1.32,1101,70.367,722,"Full season"],[2010,45,"02239","Scott Verplank","United States",1653190,0,3,2,813,70.838,360,"Full season"],[2010,46,"21753","Brian Davis","England",1640516,0,2,1.86,1149,71.376,181,"Full season"],[2010,47,"23788","D.J. Trahan","United States",1619693,0,7,1.23,1195,70.661,494,"Full season"],[2010,48,"27649","Brandt Snedeker","United States",1602690,0,5,1.69,1470,70.258,572,"Full season"],[2010,49,"02206","David Toms","United States",1590998,0,2,1.85,1118,70.337,693,"Full season"],[2010,50,"25572","Graeme McDowell","Northern Ireland",1589337,1,2,6.3,91,0,0,"Full season"],[2011,1,"23983","Luke Donald","England",6683214,2,14,10.03,2567,68.861,2.278,"Full season"],[2011,2,"29221","Webb Simpson","United States",6347353,2,12,5.03,2745,69.252,1.764,"Full season"],[2011,3,"27095","Nick Watney","United States",5290673,2,10,4.69,1420,69.518,1.712,"Full season"],[2011,4,"24357","K.J. Choi","South Korea",4434691,1,8,4.31,1207,69.993,1.079,"Full season"],[2011,5,"30925","Dustin Johnson","United States",4309961,1,6,5.27,2488,70.457,576,"Full season"],[2011,6,"23108","Matt Kuchar","United States",4233920,0,9,4.71,1853,69.515,1.54,"Full season"],[2011,7,"24924","Bill Haas","United States",4088637,1,7,3.43,2760,70.135,916,"Full season"],[2011,8,"06527","Steve Stricker","United States",3992785,2,5,5.33,740,69.362,1.73,"Full season"],[2011,9,"28089","Jason Day","Australia",3962647,0,10,5.07,1058,69.706,976,"Full season"],[2011,10,"02206","David Toms","United States",3858090,1,7,3.5,648,69.706,1.282,"Full season"],[2011,11,"24502","Adam Scott","Australia",3764797,1,7,5.5,778,69.872,635,"Full season"],[2011,12,"01810","Phil Mickelson","United States",3763488,1,7,4.47,795,69.891,1.182,"Full season"],[2011,13,"33141","Keegan Bradley","United States",3758600,2,4,3.26,648,70.257,279,"Full season"],[2011,14,"27649","Brandt Snedeker","United States",3587206,1,7,3.09,1668,69.859,1.094,"Full season"],[2011,15,"24781","Hunter Mahan","United States",3503540,0,9,3.76,1800,69.905,1.218,"Full season"],[2011,16,"25804","Bubba Watson","United States",3477811,2,3,3.69,578,70.625,593,"Full season"],[2011,17,"31323","Gary Woodland","United States",3448591,1,6,2.71,773,69.875,1.041,"Full season"],[2011,18,"22405","Justin Rose","England",3401420,1,5,3.84,2253,70.332,984,"Full season"],[2011,19,"21878","Mark Wilson","United States",3158477,2,4,2.2,620,70.526,477,"Full season"],[2011,20,"22371","Aaron Baddeley","Australia",3094693,1,5,2.79,1007,70.23,1.148,"Full season"],[2011,21,"25686","Jason Dufner","United States",3057860,0,6,3.21,583,70.2,717,"Full season"],[2011,22,"24925","Jonathan Byrd","United States",2938920,1,5,2.38,565,70.783,469,"Full season"],[2011,23,"27936","Martin Laird","Scotland",2676509,1,6,2.76,1589,70.341,996,"Full season"],[2011,24,"26331","Charl Schwartzel","South Africa",2604558,1,3,5.06,1560,69.619,950,"Full season"],[2011,25,"21961","Charles Howell III","United States",2509223,0,7,1.87,708,69.66,1.239,"Full season"],[2011,26,"21731","Freddie Jacobson","Sweden",2488325,1,3,3.08,488,69.854,904,"Full season"],[2011,27,"23621","Rory Sabbatini","Slovakia",2420655,1,3,1.99,1493,70.46,719,"Full season"],[2011,28,"06567","Vijay Singh","Fiji",2371050,0,5,2.14,548,70.61,600,"Full season"],[2011,29,"23623","Bo Van Pelt","United States",2344546,0,5,3.37,610,70.092,867,"Full season"],[2011,30,"25396","Kevin Na","United States",2336965,1,6,2,778,70.432,770,"Full season"],[2011,31,"27466","Spencer Levin","United States",2320038,0,6,1.7,1287,69.851,846,"Full season"],[2011,32,"24663","Y.E. Yang","South Korea",2314865,0,5,2.84,440,70.277,270,"Full season"],[2011,33,"20645","John Senden","Australia",2294811,0,3,2.91,1030,70.199,967,"Full season"],[2011,34,"26476","Chez Reavie","United States",2285067,0,5,2.05,1220,70.744,419,"Full season"],[2011,35,"30750","Tommy Gainey","United States",2174191,0,7,1.66,1009,70.814,270,"Full season"],[2011,36,"32102","Rickie Fowler","United States",2084681,0,4,3.24,1323,70.007,917,"Full season"],[2011,37,"25240","D.A. Points","United States",2034156,1,3,1.38,1140,70.621,297,"Full season"],[2011,38,"29518","Brendan Steele","United States",1976310,1,3,1.35,1160,71.019,6,"Full season"],[2011,39,"28158","Steve Marino","United States",1975076,0,3,1.66,1262,70.735,565,"Full season"],[2011,40,"23800","Bryce Molder","United States",1957944,1,6,1.44,523,70.433,653,"Full season"],[2011,41,"30692","Scott Stallings","United States",1957162,1,2,1.23,1125,71.036,59,"Full season"],[2011,42,"26596","Ryan Moore","United States",1942906,0,4,2.36,1465,70.345,827,"Full season"],[2011,43,"22046","Geoff Ogilvy","Australia",1916994,0,4,3.13,608,70.164,722,"Full season"],[2011,44,"24024","Zach Johnson","United States",1880406,0,4,3.09,1414,69.966,1.033,"Full season"],[2011,45,"30926","Chris Kirk","United States",1877627,1,4,1.64,1332,70.414,432,"Full season"],[2011,46,"27064","Jhonattan Vegas","Venezuela",1854414,1,3,1.47,1149,70.966,172,"Full season"],[2011,47,"23320","Ryan Palmer","United States",1850530,0,3,1.93,1159,70.847,125,"Full season"],[2011,48,"25900","Lucas Glover","United States",1823327,1,1,2.03,1305,70.445,442,"Full season"],[2011,49,"19970","Robert Karlsson","Sweden",1779815,0,3,3.55,1297,70.211,678,"Full season"],[2011,50,"23541","Ben Crane","United States",1679595,1,4,2.42,561,70.434,490,"Full season"],[2012,1,"28237","Rory McIlroy","Northern Ireland",8047952,4,10,13.22,2827,68.873,2.406,"Full season"],[2012,2,"08793","Tiger Woods","United States",6133158,3,9,8.53,2663,68.904,2.31,"Full season"],[2012,3,"27649","Brandt Snedeker","United States",4989739,2,7,5.23,4100,69.84,1.01,"Full season"],[2012,4,"25686","Jason Dufner","United States",4869304,2,8,5.29,853,69.456,1.446,"Full season"],[2012,5,"25804","Bubba Watson","United States",4644997,1,7,5.29,1005,69.639,1.529,"Full season"],[2012,6,"24024","Zach Johnson","United States",4504244,2,6,4.25,1073,69.821,1.197,"Full season"],[2012,7,"22405","Justin Rose","England",4290930,1,8,6.42,1770,69.549,1.64,"Full season"],[2012,8,"01810","Phil Mickelson","United States",4203821,1,7,4.69,2073,70.03,1.422,"Full season"],[2012,9,"24781","Hunter Mahan","United States",4019193,2,5,3.85,693,70.346,541,"Full season"],[2012,10,"33141","Keegan Bradley","United States",3910658,1,5,5,655,69.984,1.122,"Full season"],[2012,11,"23108","Matt Kuchar","United States",3903065,1,9,4.44,707,69.477,1.382,"Full season"],[2012,12,"10809","Jim Furyk","United States",3623805,0,8,3.83,790,69.304,1.752,"Full season"],[2012,13,"25345","Carl Pettersson","Sweden",3538656,1,6,3.34,613,70.013,867,"Full season"],[2012,14,"23983","Luke Donald","England",3512024,1,8,8.62,1275,69.687,1.641,"Full season"],[2012,15,"26329","Louis Oosthuizen","South Africa",3460995,0,5,6.14,1635,69.707,976,"Full season"],[2012,16,"06522","Ernie Els","South Africa",3453118,1,5,4.34,510,70.131,677,"Full season"],[2012,17,"29221","Webb Simpson","United States",3436758,1,7,5.13,785,70.04,1.123,"Full season"],[2012,18,"06527","Steve Stricker","United States",3420021,1,7,4.65,685,69.865,1.295,"Full season"],[2012,19,"30925","Dustin Johnson","United States",3393820,1,9,4.36,1527,69.564,1.509,"Full season"],[2012,20,"24358","Robert Garrigus","United States",3206530,0,8,2.84,637,70.066,988,"Full season"],[2012,21,"32102","Rickie Fowler","United States",3066293,1,5,3.37,475,70.606,518,"Full season"],[2012,22,"27095","Nick Watney","United States",3044224,1,5,4.54,2215,70.577,536,"Full season"],[2012,23,"23623","Bo Van Pelt","United States",3043509,0,10,4.41,647,69.718,1.437,"Full season"],[2012,24,"20396","Lee Westwood","England",3016569,0,7,6.03,1205,70.084,784,"Full season"],[2012,25,"24502","Adam Scott","Australia",2899557,0,5,6.21,560,69.533,1.164,"Full season"],[2012,26,"26596","Ryan Moore","United States",2858944,1,8,2.76,1105,70.3,847,"Full season"],[2012,27,"25818","Scott Piercy","United States",2699205,1,4,2.71,483,70.409,857,"Full season"],[2012,28,"34174","John Huh","United States",2692113,1,4,2.01,460,70.384,564,"Full season"],[2012,29,"21209","Sergio Garcia","Spain",2510116,1,3,4.73,733,69.928,1.104,"Full season"],[2012,30,"22621","Ben Curtis","United States",2494153,1,3,1.7,1230,70.538,906,"Full season"],[2012,31,"25572","Graeme McDowell","Northern Ireland",2408279,0,4,4.81,1222,70.229,372,"Full season"],[2012,32,"30110","Kyle Stanley","United States",2351857,1,2,1.86,1492,70.633,384,"Full season"],[2012,33,"24924","Bill Haas","United States",2349951,1,3,3.12,1471,70.484,668,"Full season"],[2012,34,"27895","Jonas Blixt","Sweden",2255695,1,5,1.89,820,70.244,1.062,"Full season"],[2012,35,"26951","Johnson Wagner","United States",2225007,1,4,1.43,1386,70.899,385,"Full season"],[2012,36,"27936","Martin Laird","Scotland",2172883,0,3,1.97,1024,70.989,549,"Full season"],[2012,37,"21878","Mark Wilson","United States",2144780,1,3,1.58,1049,71.375,245,"Full season"],[2012,38,"25396","Kevin Na","United States",2029943,0,6,1.99,1095,70.634,445,"Full season"],[2012,39,"23638","Brendon de Jonge","Zimbabwe",2015252,0,4,1.73,1065,70.137,1.083,"Full season"],[2012,40,"28307","Matt Every","United States",1972166,0,6,1.31,979,70.789,613,"Full season"],[2012,41,"26851","Marc Leishman","Australia",1933761,1,2,1.67,1165,70.831,212,"Full season"],[2012,42,"20645","John Senden","Australia",1916651,0,5,2.85,445,70.05,1,"Full season"],[2012,43,"20160","Charlie Wi","South Korea",1845397,0,4,1.49,1043,70.697,283,"Full season"],[2012,44,"34021","Bud Cauley","United States",1774479,0,6,2,1342,70.458,721,"Full season"],[2012,45,"24138","Ian Poulter","England",1715271,1,4,5,1280,70.176,564,"Full season"],[2012,46,"23541","Ben Crane","United States",1701365,0,4,1.74,991,70.708,591,"Full season"],[2012,47,"02206","David Toms","United States",1658428,0,5,2.68,623,70.74,191,"Full season"],[2012,48,"25632","Jimmy Walker","United States",1638419,0,6,1.37,1033,70.556,547,"Full season"],[2012,49,"29289","S.Y. Noh","South Korea",1629751,0,3,1.6,1379,70.256,721,"Full season"],[2012,50,"24925","Jonathan Byrd","United States",1616789,0,5,1.61,736,70.753,506,"Full season"],[2013,1,"08793","Tiger Woods","United States",8553439,5,8,12.84,2743,68.944,2.064,"Full season"],[2013,2,"21528","Henrik Stenson","Sweden",6388230,2,8,8.15,4750,69.248,1.618,"Full season"],[2013,3,"23108","Matt Kuchar","United States",5616808,2,8,6.58,1823,69.561,1.398,"Full season"],[2013,4,"01810","Phil Mickelson","United States",5495793,2,7,8.51,1313,69.742,1.436,"Full season"],[2013,5,"27649","Brandt Snedeker","United States",5318087,2,9,6.2,853,69.791,1.141,"Full season"],[2013,6,"24502","Adam Scott","Australia",4892611,2,6,9.27,2278,69.3,1.31,"Full season"],[2013,7,"06527","Steve Stricker","United States",4440532,0,8,6.72,2650,68.893,2.193,"Full season"],[2013,8,"22405","Justin Rose","England",4146148,1,7,7.54,1300,69.225,1.723,"Full season"],[2013,9,"24024","Zach Johnson","United States",4044509,1,8,5.4,2238,70.073,844,"Full season"],[2013,10,"34046","Jordan Spieth","United States",3879820,1,9,4.34,1690,69.668,1.473,"Full season"],[2013,11,"33141","Keegan Bradley","United States",3636813,0,7,4.97,693,69.724,1.403,"Full season"],[2013,12,"28089","Jason Day","Australia",3625030,0,7,4.89,698,69.732,976,"Full season"],[2013,13,"29420","Billy Horschel","United States",3501703,1,8,2.84,728,70.244,656,"Full season"],[2013,14,"24924","Bill Haas","United States",3475563,1,9,3.84,573,70.023,1.265,"Full season"],[2013,15,"10809","Jim Furyk","United States",3204779,0,7,5.09,758,69.828,1.389,"Full season"],[2013,16,"25686","Jason Dufner","United States",3132268,1,5,5.93,685,69.912,581,"Full season"],[2013,17,"27214","Kevin Streelman","United States",3088284,1,5,2.83,553,70.267,858,"Full season"],[2013,18,"24781","Hunter Mahan","United States",3036164,0,5,3.95,653,70.106,1.134,"Full season"],[2013,19,"30925","Dustin Johnson","United States",2963214,1,6,4.32,760,70.115,805,"Full season"],[2013,20,"29221","Webb Simpson","United States",2957582,0,5,4.12,1050,69.783,1.271,"Full season"],[2013,21,"27436","Graham DeLaet","Canada",2834900,0,7,2.95,1415,70.089,1.069,"Full season"],[2013,22,"26289","Boo Weekley","United States",2786662,1,4,2.41,455,70.611,99,"Full season"],[2013,23,"25240","D.A. Points","United States",2658887,1,3,2.34,453,71.116,0,"Full season"],[2013,24,"27095","Nick Watney","United States",2477639,0,4,3.88,738,70.78,512,"Full season"],[2013,25,"26331","Charl Schwartzel","South Africa",2256723,0,5,4.43,490,69.651,1.268,"Full season"],[2013,26,"21209","Sergio Garcia","Spain",2251139,0,6,4.49,635,69.543,1.519,"Full season"],[2013,27,"34099","Harris English","United States",2201167,1,4,1.95,1442,70.438,613,"Full season"],[2013,28,"25572","Graeme McDowell","Northern Ireland",2174595,1,4,5.33,1116,70.503,543,"Full season"],[2013,29,"32200","Roberto Castro","United States",2154898,0,4,2.06,645,70.494,466,"Full season"],[2013,30,"25632","Jimmy Walker","United States",2117570,0,5,2.06,1388,70.332,930,"Full season"],[2013,31,"20396","Lee Westwood","England",2081731,0,6,4.44,1291,70.158,604,"Full season"],[2013,32,"27895","Jonas Blixt","Sweden",2027517,1,2,2.85,1135,71.11,403,"Full season"],[2013,33,"34098","Russell Henley","United States",2008026,1,3,1.96,1238,70.57,754,"Full season"],[2013,34,"27933","John Merrick","United States",1969478,1,2,1.9,1331,70.736,517,"Full season"],[2013,35,"34360","Patrick Reed","United States",1961519,1,5,2.08,1125,70.807,122,"Full season"],[2013,36,"23983","Luke Donald","England",1930646,0,5,5.08,483,69.793,1.279,"Full season"],[2013,37,"31323","Gary Woodland","United States",1915732,1,2,1.83,603,70.733,459,"Full season"],[2013,38,"21961","Charles Howell III","United States",1877389,0,5,1.69,1398,70.272,862,"Full season"],[2013,39,"25818","Scott Piercy","United States",1830084,0,4,2.72,1193,71.273,83,"Full season"],[2013,40,"32102","Rickie Fowler","United States",1816742,0,5,2.86,1334,70.212,783,"Full season"],[2013,41,"28237","Rory McIlroy","Northern Ireland",1802443,0,5,7.31,1190,70.288,985,"Full season"],[2013,42,"23638","Brendon de Jonge","Zimbabwe",1795244,0,4,2.09,503,70.154,756,"Full season"],[2013,43,"20848","Ángel Cabrera","Argentina",1791183,0,2,2.29,956,70.897,63,"Full season"],[2013,44,"25804","Bubba Watson","United States",1759276,0,3,3.97,1365,70.276,1.069,"Full season"],[2013,45,"27936","Martin Laird","Scotland",1755393,1,2,2.15,814,71.029,9,"Full season"],[2013,46,"34409","David Lingmerth","Sweden",1748109,0,3,1.71,806,70.996,15,"Full season"],[2013,47,"30926","Chris Kirk","United States",1728616,0,3,1.7,1399,70.206,962,"Full season"],[2013,48,"26300","Matt Jones","Australia",1724707,0,5,1.65,1419,70.245,885,"Full season"],[2013,49,"24138","Ian Poulter","England",1723463,0,4,4.32,1133,70.382,514,"Full season"],[2013,50,"20104","Ken Duke","United States",1722583,1,2,1.72,930,71.025,65,"Full season"],[2014,1,"28237","Rory McIlroy","Northern Ireland",8280096,3,12,11.7,3050,68.827,2.266,"Full season"],[2014,2,"25804","Bubba Watson","United States",6336978,2,8,6.98,2285,69.712,1.352,"Full season"],[2014,3,"10809","Jim Furyk","United States",5987395,0,11,7.52,2450,69.2,1.796,"Full season"],[2014,4,"25632","Jimmy Walker","United States",5787016,3,10,4.22,1668,69.789,1.253,"Full season"],[2014,5,"21209","Sergio Garcia","Spain",4939606,0,10,7.66,815,68.95,1.984,"Full season"],[2014,6,"30926","Chris Kirk","United States",4854777,2,5,4.03,3100,70.15,862,"Full season"],[2014,7,"29420","Billy Horschel","United States",4814787,2,5,4.99,4750,70.521,738,"Full season"],[2014,8,"32102","Rickie Fowler","United States",4806117,0,10,5.78,1225,70.172,769,"Full season"],[2014,9,"23108","Matt Kuchar","United States",4695515,1,11,6.28,1300,69.416,1.573,"Full season"],[2014,10,"27408","Martin Kaymer","Germany",4532537,2,4,5.06,655,70.468,244,"Full season"],[2014,11,"34046","Jordan Spieth","United States",4342748,0,8,4.98,698,69.946,980,"Full season"],[2014,12,"30925","Dustin Johnson","United States",4249180,1,7,4.68,210,69.546,1.331,"Full season"],[2014,13,"24502","Adam Scott","Australia",4098588,1,10,8.84,835,69.205,1.72,"Full season"],[2014,14,"34360","Patrick Reed","United States",4026076,2,4,3.62,598,70.598,331,"Full season"],[2014,15,"22405","Justin Rose","England",3926768,1,8,7.12,850,69.624,1.466,"Full season"],[2014,16,"28089","Jason Day","Australia",3789574,1,6,6.72,1200,69.626,1.389,"Full season"],[2014,17,"29221","Webb Simpson","United States",3539601,1,9,3.27,525,70.234,880,"Full season"],[2014,18,"30927","Brendon Todd","United States",3396747,1,7,2.76,508,70.049,793,"Full season"],[2014,19,"24024","Zach Johnson","United States",3353417,1,5,4.66,650,70.159,857,"Full season"],[2014,20,"25396","Kevin Na","United States",3153107,0,6,3.25,528,69.996,954,"Full season"],[2014,21,"26596","Ryan Moore","United States",3098263,1,7,2.91,1534,70.344,836,"Full season"],[2014,22,"24781","Hunter Mahan","United States",3097983,1,6,4.03,1835,70.574,520,"Full season"],[2014,23,"34099","Harris English","United States",2947322,1,7,2.24,1662,70.094,677,"Full season"],[2014,24,"23320","Ryan Palmer","United States",2924300,0,8,2.99,730,69.993,1.265,"Full season"],[2014,25,"20645","John Senden","Australia",2856685,1,5,2.57,585,70.27,805,"Full season"],[2014,26,"24924","Bill Haas","United States",2841521,0,5,3.46,655,70.132,1.09,"Full season"],[2014,27,"32839","Hideki Matsuyama","Japan",2837477,1,4,4.07,475,70.083,1.152,"Full season"],[2014,28,"33141","Keegan Bradley","United States",2828638,0,6,3.62,1621,70.031,994,"Full season"],[2014,29,"31323","Gary Woodland","United States",2734153,0,5,2.67,595,70.249,900,"Full season"],[2014,30,"27436","Graham DeLaet","Canada",2616518,0,7,3.01,1553,69.943,1.168,"Full season"],[2014,31,"34098","Russell Henley","United States",2590493,1,3,2.43,635,71.379,106,"Full season"],[2014,32,"26851","Marc Leishman","Australia",2558657,0,6,2.84,1240,70.152,749,"Full season"],[2014,33,"28307","Matt Every","United States",2540370,1,6,2.26,1354,70.722,497,"Full season"],[2014,34,"27644","Brian Harman","United States",2414334,1,6,1.97,1571,70.391,515,"Full season"],[2014,35,"27141","J.B. Holmes","United States",2365204,1,2,2.25,1467,70.721,401,"Full season"],[2014,36,"26679","Kevin Stadler","United States",2300307,1,3,2.41,1537,70.62,411,"Full season"],[2014,37,"33419","Cameron Tringale","United States",2169723,0,3,1.96,600,70.63,668,"Full season"],[2014,38,"01810","Phil Mickelson","United States",2158019,0,1,5.59,1046,70.278,868,"Full season"],[2014,39,"29289","S.Y. Noh","South Korea",2115234,1,3,1.54,1590,70.661,306,"Full season"],[2014,40,"27214","Kevin Streelman","United States",2107994,1,2,2.6,1354,71.354,74,"Full season"],[2014,41,"25572","Graeme McDowell","Northern Ireland",2077387,0,8,4.46,1256,69.642,1.171,"Full season"],[2014,42,"23135","Tim Clark","South Africa",2066344,1,3,1.78,1271,70.738,86,"Full season"],[2014,43,"24490","George McNeill","United States",2014357,0,4,1.74,1352,70.248,799,"Full season"],[2014,44,"26331","Charl Schwartzel","South Africa",1997482,0,5,3.79,1405,69.671,1.341,"Full season"],[2014,45,"21961","Charles Howell III","United States",1997044,0,6,1.5,1592,70.134,755,"Full season"],[2014,46,"12716","Charley Hoffman","United States",1977296,0,5,1.93,1291,70.464,956,"Full season"],[2014,47,"26300","Matt Jones","Australia",1928154,1,1,2.24,1051,71.021,113,"Full season"],[2014,48,"21731","Freddie Jacobson","Sweden",1901789,0,4,1.88,1068,70.604,411,"Full season"],[2014,49,"21528","Henrik Stenson","Sweden",1894235,0,3,7.33,1315,70.166,992,"Full season"],[2014,50,"20848","Ángel Cabrera","Argentina",1868559,1,1,2.37,1332,70.675,205,"Full season"],[2015,1,"34046","Jordan Spieth","United States",12030465,5,15,12.55,3800,68.938,2.154,"Full season"],[2015,2,"28089","Jason Day","Australia",9403330,5,11,12.53,2290,69.161,2.106,"Full season"],[2015,3,"25804","Bubba Watson","United States",6876797,2,10,8.24,1680,69.296,2.088,"Full season"],[2015,4,"32102","Rickie Fowler","United States",5773430,2,7,7.86,1838,70.23,1.088,"Full season"],[2015,5,"30925","Dustin Johnson","United States",5509467,1,11,6.82,1360,69.585,1.455,"Full season"],[2015,6,"22405","Justin Rose","England",5462677,1,8,7.09,1235,69.744,1.493,"Full season"],[2015,7,"28237","Rory McIlroy","Northern Ireland",4863312,2,7,11.09,602,0,0,"Full season"],[2015,8,"24024","Zach Johnson","United States",4801487,1,10,5.12,1450,69.753,1.12,"Full season"],[2015,9,"21528","Henrik Stenson","Sweden",4755070,0,8,7.44,2307,69.354,2.21,"Full season"],[2015,10,"25632","Jimmy Walker","United States",4521350,2,6,4.05,558,70.268,933,"Full season"],[2015,11,"12716","Charley Hoffman","United States",4041089,1,7,2.88,992,70.613,335,"Full season"],[2015,12,"27141","J.B. Holmes","United States",4037430,1,7,3.89,618,70.581,944,"Full season"],[2015,13,"29926","Danny Lee","New Zealand",3965933,1,8,2.82,1123,70.398,729,"Full season"],[2015,14,"34431","Robert Streb","United States",3947424,1,9,3.02,542,70.13,1.093,"Full season"],[2015,15,"32839","Hideki Matsuyama","Japan",3758619,0,9,4.26,558,69.94,1.464,"Full season"],[2015,16,"10809","Jim Furyk","United States",3732664,1,7,6.78,304,69.845,1.634,"Full season"],[2015,17,"27649","Brandt Snedeker","United States",3698056,1,8,3.05,416,70.158,607,"Full season"],[2015,18,"34360","Patrick Reed","United States",3590566,1,4,3.82,656,70.292,859,"Full season"],[2015,19,"36689","Brooks Koepka","United States",3571900,1,8,4.49,414,69.861,1.081,"Full season"],[2015,20,"29478","Kevin Kisner","United States",3567939,0,6,2.9,444,70.344,628,"Full season"],[2015,21,"25364","Paul Casey","England",3488311,0,8,3.53,632,69.806,1.216,"Full season"],[2015,22,"26329","Louis Oosthuizen","South Africa",3251174,0,6,4.42,176,70.16,605,"Full season"],[2015,23,"25274","Steven Bowditch","Australia",3075410,1,2,2.18,454,70.835,400,"Full season"],[2015,24,"24924","Bill Haas","United States",3064024,1,5,3.06,380,70.672,460,"Full season"],[2015,25,"40026","Daniel Berger","United States",3028901,0,6,2.51,878,70.581,489,"Full season"],[2015,26,"25396","Kevin Na","United States",2820766,0,7,2.95,410,70.121,944,"Full season"],[2015,27,"25818","Scott Piercy","United States",2780027,1,5,2.53,432,70.688,329,"Full season"],[2015,28,"23108","Matt Kuchar","United States",2774170,0,7,4.24,530,70.04,1.133,"Full season"],[2015,29,"34409","David Lingmerth","Sweden",2736378,1,4,2.55,1387,70.8,405,"Full season"],[2015,30,"33413","Ben Martin","United States",2717305,1,5,2.12,1417,70.95,280,"Full season"],[2015,31,"21209","Sergio Garcia","Spain",2670229,0,4,4.96,1177,69.958,1.045,"Full season"],[2015,32,"26596","Ryan Moore","United States",2642306,1,4,2.3,1374,70.829,578,"Full season"],[2015,33,"31323","Gary Woodland","United States",2605083,0,4,2.58,1300,70.982,198,"Full season"],[2015,34,"28259","Sangmoon Bae","South Korea",2599632,1,5,1.65,390,71.036,59,"Full season"],[2015,35,"30926","Chris Kirk","United States",2369326,1,3,3.15,1291,70.959,414,"Full season"],[2015,36,"24507","Jason Bohn","United States",2337580,0,6,1.68,1373,70.235,777,"Full season"],[2015,37,"33448","Justin Thomas","United States",2278564,0,7,1.92,1498,70.105,968,"Full season"],[2015,38,"01810","Phil Mickelson","United States",2154200,0,3,3.42,1091,70.585,581,"Full season"],[2015,39,"34098","Russell Henley","United States",2110774,0,4,2.33,1072,70.581,462,"Full season"],[2015,40,"29725","Tony Finau","United States",2095186,0,5,1.71,1293,70.281,628,"Full season"],[2015,41,"32640","Troy Merritt","United States",2092669,1,3,1.68,1148,71.458,195,"Full season"],[2015,42,"32448","James Hahn","United States",2064783,1,2,1.54,1202,70.896,355,"Full season"],[2015,43,"29221","Webb Simpson","United States",2046260,0,5,2.32,1213,70.31,700,"Full season"],[2015,44,"26300","Matt Jones","Australia",1995553,0,4,2.07,1445,70.812,664,"Full season"],[2015,45,"23320","Ryan Palmer","United States",1974523,0,5,2.71,1386,70.102,960,"Full season"],[2015,46,"34099","Harris English","United States",1971687,0,3,1.78,360,70.235,777,"Full season"],[2015,47,"33122","Russell Knox","Scotland",1916666,0,3,1.81,1435,70.421,806,"Full season"],[2015,48,"33419","Cameron Tringale","United States",1837164,0,3,2,1390,70.92,369,"Full season"],[2015,49,"26758","David Hearn","Canada",1817043,0,4,1.46,1152,70.843,356,"Full season"],[2015,50,"30927","Brendon Todd","United States",1809192,0,4,2.3,1279,70.533,830,"Full season"],[2016,1,"30925","Dustin Johnson","United States",9365185,3,15,11.31,2380,69.172,1.928,"Full season"],[2016,2,"28089","Jason Day","Australia",8045112,3,10,13.04,1440,69.313,2.118,"Full season"],[2016,3,"24502","Adam Scott","Australia",6473090,2,9,7.07,1930,69.47,1.894,"Full season"],[2016,4,"28237","Rory McIlroy","Northern Ireland",5790585,2,8,11.07,3120,69.646,1.681,"Full season"],[2016,5,"34360","Patrick Reed","United States",5679575,1,11,6.1,1986,70.17,1.026,"Full season"],[2016,6,"34046","Jordan Spieth","United States",5538470,2,8,9.29,1168,69.52,1.569,"Full season"],[2016,7,"33122","Russell Knox","Scotland",4885906,2,4,4.24,992,70.319,506,"Full season"],[2016,8,"32366","Kevin Chappell","United States",4501050,0,8,3.57,1320,70.501,770,"Full season"],[2016,9,"32839","Hideki Matsuyama","Japan",4193954,1,8,4.46,728,70.034,1.29,"Full season"],[2016,10,"25632","Jimmy Walker","United States",4148546,1,5,4.72,652,70.393,892,"Full season"],[2016,11,"33448","Justin Thomas","United States",4126366,1,7,3.25,748,70.571,320,"Full season"],[2016,12,"01810","Phil Mickelson","United States",4022628,0,6,4.89,548,69.582,1.364,"Full season"],[2016,13,"27649","Brandt Snedeker","United States",3960142,1,7,4.08,592,70.203,968,"Full season"],[2016,14,"25364","Paul Casey","England",3885560,0,7,5.08,1880,69.95,1.372,"Full season"],[2016,15,"23108","Matt Kuchar","United States",3819678,0,10,4.53,526,69.844,1.314,"Full season"],[2016,16,"26596","Ryan Moore","United States",3701034,1,9,3.34,1336,70.317,895,"Full season"],[2016,17,"31202","William McGirt","United States",3614972,1,7,2.9,432,70.393,958,"Full season"],[2016,18,"25804","Bubba Watson","United States",3492842,1,4,6.04,478,70.333,992,"Full season"],[2016,19,"25396","Kevin Na","United States",3441291,0,8,2.97,400,70.298,627,"Full season"],[2016,20,"29478","Kevin Kisner","United States",3424354,1,6,3.08,436,70.489,548,"Full season"],[2016,21,"21528","Henrik Stenson","Sweden",3397373,1,4,8.52,1499,0,0,"Full season"],[2016,22,"31646","Emiliano Grillo","Argentina",3371705,1,3,3.73,902,70.637,479,"Full season"],[2016,23,"36689","Brooks Koepka","United States",3322393,0,7,4,1541,69.956,1.092,"Full season"],[2016,24,"40026","Daniel Berger","United States",3290764,1,6,2.99,422,70.339,893,"Full season"],[2016,25,"21209","Sergio Garcia","Spain",3242156,1,4,5.04,1566,69.999,801,"Full season"],[2016,26,"37455","Si Woo Kim","South Korea",3086369,1,5,2.56,534,70.56,503,"Full season"],[2016,27,"27141","J.B. Holmes","United States",2969608,0,6,4.01,360,70.523,504,"Full season"],[2016,28,"26331","Charl Schwartzel","South Africa",2936027,1,5,3.71,430,70.004,1.043,"Full season"],[2016,29,"25818","Scott Piercy","United States",2905349,0,3,3.15,1497,70.855,187,"Full season"],[2016,30,"25686","Jason Dufner","United States",2879884,1,6,2.28,522,70.212,488,"Full season"],[2016,31,"29974","Branden Grace","South Africa",2878868,1,6,4.89,1443,70.204,855,"Full season"],[2016,32,"32102","Rickie Fowler","United States",2713563,0,8,5.63,1607,70.118,1.378,"Full season"],[2016,33,"25572","Graeme McDowell","Northern Ireland",2596170,1,5,1.82,1250,70.899,178,"Full season"],[2016,34,"32200","Roberto Castro","United States",2520574,0,4,2.1,448,70.588,587,"Full season"],[2016,35,"46440","Smylie Kaufman","United States",2508174,1,4,1.71,1409,71.015,344,"Full season"],[2016,36,"27064","Jhonattan Vegas","Venezuela",2478980,1,5,1.95,362,70.903,571,"Full season"],[2016,37,"26329","Louis Oosthuizen","South Africa",2422079,0,3,4.06,1468,70.327,836,"Full season"],[2016,38,"31323","Gary Woodland","United States",2392044,0,4,2.66,510,70.234,903,"Full season"],[2016,39,"24924","Bill Haas","United States",2390199,0,6,2.87,1285,70.444,519,"Full season"],[2016,40,"32448","James Hahn","United States",2367521,1,3,2.24,1452,71.245,199,"Full season"],[2016,41,"12716","Charley Hoffman","United States",2350239,1,1,2.52,1383,70.658,525,"Full season"],[2016,42,"28679","Fabián Gómez","Argentina",2227040,1,4,1.95,1450,71.346,37,"Full season"],[2016,43,"31557","Jim Herman","United States",2091274,1,2,1.75,1415,71.206,207,"Full season"],[2016,44,"22405","Justin Rose","England",2085365,0,5,5.35,1191,70.148,1.128,"Full season"],[2016,45,"25834","Daniel Summerhays","United States",2045968,0,2,2.29,975,70.771,236,"Full season"],[2016,46,"34099","Harris English","United States",2014283,0,3,2.12,1270,70.463,634,"Full season"],[2016,47,"21961","Charles Howell III","United States",1974962,0,5,1.47,1191,70.418,701,"Full season"],[2016,48,"29461","Jamie Lovemark","United States",1940890,0,5,1.51,1232,70.896,504,"Full season"],[2016,49,"32139","Danny Willett","England",1938132,1,3,5.76,691,0,0,"Full season"],[2016,50,"30944","Jason Kokrak","United States",1934250,0,4,1.69,1554,70.57,525,"Full season"],[2017,1,"33448","Justin Thomas","United States",9921560,5,12,8.46,3000,69.359,1.811,"Full season"],[2017,2,"34046","Jordan Spieth","United States",9433033,3,12,10.54,2340,68.846,1.924,"Full season"],[2017,3,"30925","Dustin Johnson","United States",8732193,4,8,12.02,1720,69.549,1.882,"Full season"],[2017,4,"32839","Hideki Matsuyama","Japan",8380569,3,7,8.99,1093,69.624,1.267,"Full season"],[2017,5,"46970","Jon Rahm","Spain",6123248,1,11,7.81,1620,69.561,1.778,"Full season"],[2017,6,"32102","Rickie Fowler","United States",6083197,1,10,6.59,1253,69.083,1.987,"Full season"],[2017,7,"26851","Marc Leishman","Australia",5866390,2,7,5.14,1441,69.468,1.422,"Full season"],[2017,8,"36689","Brooks Koepka","United States",5612397,1,7,6.07,1040,69.847,1.204,"Full season"],[2017,9,"29478","Kevin Kisner","United States",4766936,1,8,3.84,901,70.294,1.043,"Full season"],[2017,10,"27644","Brian Harman","United States",4396470,1,7,3.39,364,70.402,746,"Full season"],[2017,11,"24361","Pat Perez","United States",4361400,1,6,3.22,596,70.25,862,"Full season"],[2017,12,"48081","Xander Schauffele","United States",4312674,2,4,3.14,2151,70.163,881,"Full season"],[2017,13,"40026","Daniel Berger","United States",4287161,1,6,3.81,556,70.121,910,"Full season"],[2017,14,"23108","Matt Kuchar","United States",4282488,0,9,5.58,648,69.806,1.173,"Full season"],[2017,15,"22405","Justin Rose","England",4245308,0,8,5.59,1080,69.699,1.232,"Full season"],[2017,16,"12716","Charley Hoffman","United States",4161008,0,7,3.88,473,70.351,892,"Full season"],[2017,17,"25364","Paul Casey","England",3906974,0,9,5.42,920,69.469,1.543,"Full season"],[2017,18,"21209","Sergio Garcia","Spain",3522476,1,3,6.12,441,69.596,1.045,"Full season"],[2017,19,"33399","Adam Hadwin","Canada",3455012,1,5,2.58,362,70.583,551,"Full season"],[2017,20,"34098","Russell Henley","United States",3413876,1,5,2.73,792,70.027,939,"Full season"],[2017,21,"30110","Kyle Stanley","United States",3402106,1,5,2.37,366,69.989,951,"Full season"],[2017,22,"25686","Jason Dufner","United States",3310341,1,2,3.08,287,70.259,653,"Full season"],[2017,23,"29221","Webb Simpson","United States",3209646,0,6,2.95,527,70.018,942,"Full season"],[2017,24,"32366","Kevin Chappell","United States",3149615,1,5,3.55,352,70.779,538,"Full season"],[2017,25,"26329","Louis Oosthuizen","South Africa",3105422,0,4,4.19,1321,70.22,1.234,"Full season"],[2017,26,"34360","Patrick Reed","United States",3055111,0,4,4.16,416,70.453,976,"Full season"],[2017,27,"31323","Gary Woodland","United States",2980225,0,5,2.71,321,70.482,659,"Full season"],[2017,28,"28089","Jason Day","Australia",2978181,0,5,6.46,514,70.115,935,"Full season"],[2017,29,"27064","Jhonattan Vegas","Venezuela",2944738,1,4,2.91,384,71.054,93,"Full season"],[2017,30,"29518","Brendan Steele","United States",2907095,1,4,2.26,1292,70.503,875,"Full season"],[2017,31,"25198","Francesco Molinari","Italy",2875850,0,5,4.35,1247,69.802,1.364,"Full season"],[2017,32,"24924","Bill Haas","United States",2842173,0,4,2.91,1260,70.011,923,"Full season"],[2017,33,"29725","Tony Finau","United States",2838629,0,8,2.49,510,69.987,1.147,"Full season"],[2017,34,"21528","Henrik Stenson","Sweden",2769771,1,3,6.49,1306,0,0,"Full season"],[2017,35,"29420","Billy Horschel","United States",2697960,1,4,2.39,1086,70.832,4,"Full season"],[2017,36,"37455","Si Woo Kim","South Korea",2681177,1,2,2.88,956,72.253,965,"Full season"],[2017,37,"21961","Charles Howell III","United States",2606383,0,5,2.1,1134,70.371,492,"Full season"],[2017,38,"48084","Wesley Bryan","United States",2495751,1,5,2.39,1092,71.062,2,"Full season"],[2017,39,"28237","Rory McIlroy","Northern Ireland",2430182,0,6,6.98,901,69.529,1.078,"Full season"],[2017,40,"24024","Zach Johnson","United States",2362968,0,4,2.81,1017,70.393,631,"Full season"],[2017,41,"35506","Mackenzie Hughes","Canada",2355553,1,2,1.4,1257,71.044,172,"Full season"],[2017,42,"34264","Hudson Swafford","United States",2246090,1,4,1.76,1244,70.618,314,"Full season"],[2017,43,"26331","Charl Schwartzel","South Africa",2156036,0,3,3.43,1081,70.211,761,"Full season"],[2017,44,"35891","Cameron Smith","Australia",2123216,1,4,1.12,1065,70.909,502,"Full season"],[2017,45,"01810","Phil Mickelson","United States",2102599,0,5,3.33,1268,70.168,1.048,"Full season"],[2017,46,"24138","Ian Poulter","England",2098346,0,2,2.37,985,70.045,936,"Full season"],[2017,47,"35450","Patrick Cantlay","United States",2049632,0,4,1.96,296,69.971,1.269,"Full season"],[2017,48,"25900","Lucas Glover","United States",1955822,0,4,1.58,1085,70.139,918,"Full season"],[2017,49,"31420","Anirban Lahiri","India",1944289,0,3,1.97,989,70.799,186,"Full season"],[2017,50,"27974","Sung Kang","South Korea",1943309,0,3,1.53,899,70.496,478,"Full season"],[2018,1,"33448","Justin Thomas","United States",8694821,3,10,9.46,1610,69.118,1.835,"Full season"],[2018,2,"30925","Dustin Johnson","United States",8457352,3,12,10.36,2056,68.698,2.372,"Full season"],[2018,3,"22405","Justin Rose","England",8130678,2,11,10.11,2260,68.993,1.952,"Full season"],[2018,4,"47959","Bryson DeChambeau","United States",8094489,3,9,6.91,2188,69.646,1.558,"Full season"],[2018,5,"36689","Brooks Koepka","United States",7094047,2,6,9.8,1093,69.444,1.22,"Full season"],[2018,6,"25804","Bubba Watson","United States",5793748,3,6,5.36,918,70.384,555,"Full season"],[2018,7,"29725","Tony Finau","United States",5620138,0,11,4.88,1732,69.52,1.435,"Full season"],[2018,8,"08793","Tiger Woods","United States",5443841,1,7,5.8,2219,69.35,1.596,"Full season"],[2018,9,"29221","Webb Simpson","United States",5376417,1,9,4.92,844,69.293,1.432,"Full season"],[2018,10,"28089","Jason Day","Australia",5087461,2,5,6.16,564,69.603,1.285,"Full season"],[2018,11,"25198","Francesco Molinari","Italy",5065842,2,5,7.17,512,69.797,1.123,"Full season"],[2018,12,"34360","Patrick Reed","United States",5006267,1,7,5.13,438,70.106,947,"Full season"],[2018,13,"01810","Phil Mickelson","United States",4595187,1,6,4.03,448,70.098,931,"Full season"],[2018,14,"28237","Rory McIlroy","Northern Ireland",4410296,1,7,7.3,602,69.303,1.412,"Full season"],[2018,15,"29420","Billy Horschel","United States",4315200,1,6,3.15,1840,70.154,1.112,"Full season"],[2018,16,"32102","Rickie Fowler","United States",4235237,0,6,6.63,512,69.435,1.275,"Full season"],[2018,17,"33141","Keegan Bradley","United States",4069464,1,5,3.41,1253,70.303,793,"Full season"],[2018,18,"48081","Xander Schauffele","United States",4047538,0,7,4.77,581,70.486,644,"Full season"],[2018,19,"46970","Jon Rahm","Spain",3992678,1,5,6.81,422,69.958,889,"Full season"],[2018,20,"35450","Patrick Cantlay","United States",3963962,1,7,4.14,453,69.899,1.096,"Full season"],[2018,21,"30911","Tommy Fleetwood","England",3935147,0,6,5.92,483,69.342,1.606,"Full season"],[2018,22,"30110","Kyle Stanley","United States",3916001,0,5,3.76,373,70.404,686,"Full season"],[2018,23,"26851","Marc Leishman","Australia",3771221,0,6,4.11,284,70.26,624,"Full season"],[2018,24,"25364","Paul Casey","England",3641771,1,5,4.69,403,69.85,966,"Full season"],[2018,25,"35891","Cameron Smith","Australia",3622607,0,7,3.34,660,70.517,219,"Full season"],[2018,26,"25396","Kevin Na","United States",3578316,1,4,2.82,336,70.288,801,"Full season"],[2018,27,"32757","Patton Kizzire","United States",3541151,2,4,1.67,275,70.841,33,"Full season"],[2018,28,"49964","Aaron Wise","United States",3486407,1,4,2.45,418,70.247,703,"Full season"],[2018,29,"31323","Gary Woodland","United States",3108907,1,3,2.95,385,70.161,1.066,"Full season"],[2018,30,"29478","Kevin Kisner","United States",2972285,0,4,3.58,1132,70.729,37,"Full season"],[2018,31,"24361","Pat Perez","United States",2962641,1,4,2.29,1190,70.594,48,"Full season"],[2018,32,"34046","Jordan Spieth","United States",2793536,0,5,6.36,1323,69.904,830,"Full season"],[2018,33,"34563","Chesson Hadley","United States",2768863,0,7,1.84,1163,70.311,859,"Full season"],[2018,34,"27644","Brian Harman","United States",2733463,0,8,2.95,1129,70.536,290,"Full season"],[2018,35,"24138","Ian Poulter","England",2714450,1,4,3.21,1090,70.593,850,"Full season"],[2018,36,"27129","Luke List","United States",2710736,0,5,2.29,1150,70.229,870,"Full season"],[2018,37,"26476","Chez Reavie","United States",2700018,0,3,2.16,1252,70.432,674,"Full season"],[2018,38,"27349","Alex Noren","Sweden",2699150,0,3,4.75,1169,69.973,1.044,"Full season"],[2018,39,"32839","Hideki Matsuyama","Japan",2687477,0,4,4.67,602,70.022,1.196,"Full season"],[2018,40,"21528","Henrik Stenson","Sweden",2680487,0,5,3.96,990,69.617,1.153,"Full season"],[2018,41,"33410","Andrew Landry","United States",2642179,1,5,1.84,1225,71.059,39,"Full season"],[2018,42,"33948","Byeong Hun An","South Korea",2599264,0,4,2.57,1170,70.19,805,"Full season"],[2018,43,"31646","Emiliano Grillo","Argentina",2493163,0,6,2.17,1270,70.152,1.133,"Full season"],[2018,44,"19803","Ryan Armour","United States",2485203,1,3,1.45,1113,70.758,337,"Full season"],[2018,45,"26499","Rafa Cabrera Bello","Spain",2449869,0,5,3.56,1175,69.887,1.112,"Full season"],[2018,46,"35461","Beau Hossler","United States",2449707,0,5,1.83,1134,70.574,584,"Full season"],[2018,47,"27649","Brandt Snedeker","United States",2448970,1,4,2.43,1188,70.379,625,"Full season"],[2018,48,"46435","Austin Cook","United States",2448920,1,3,1.47,1203,70.469,569,"Full season"],[2018,49,"34256","Andrew Putnam","United States",2387382,1,5,1.82,1267,70.579,472,"Full season"],[2018,50,"29518","Brendan Steele","United States",2291128,1,3,1.73,1015,71.021,29,"Full season"],[2019,1,"36689","Brooks Koepka","United States",9684006,3,9,12.62,-13,69.395,1.366,"Full season"],[2019,2,"28237","Rory McIlroy","Northern Ireland",7785286,3,14,9.68,-18,69.057,2.551,"Full season"],[2019,3,"23108","Matt Kuchar","United States",6294690,2,8,4.87,-1,69.916,1.062,"Full season"],[2019,4,"35450","Patrick Cantlay","United States",6121488,1,9,6.79,1,69.306,1.857,"Full season"],[2019,5,"31323","Gary Woodland","United States",5690965,1,8,5.08,-2,70.229,882,"Full season"],[2019,6,"48081","Xander Schauffele","United States",5609456,2,6,6.1,-14,69.834,1.393,"Full season"],[2019,7,"30925","Dustin Johnson","United States",5534619,1,7,8.81,10,69.895,1.321,"Full season"],[2019,8,"33448","Justin Thomas","United States",5013084,1,7,7.2,-13,69.466,1.631,"Full season"],[2019,9,"46970","Jon Rahm","Spain",4990110,1,12,6.89,-4,69.618,1.505,"Full season"],[2019,10,"29221","Webb Simpson","United States",4690572,0,6,5.46,-1,69.377,1.507,"Full season"],[2019,11,"22405","Justin Rose","England",4358849,1,7,7.6,3,69.825,1.243,"Full season"],[2019,12,"29725","Tony Finau","United States",4344380,0,6,5.62,-7,69.955,768,"Full season"],[2019,13,"25364","Paul Casey","England",4257040,1,7,5.49,-9,69.821,1.361,"Full season"],[2019,14,"24502","Adam Scott","Australia",4084541,0,9,5.49,-8,69.693,1.831,"Full season"],[2019,15,"32102","Rickie Fowler","United States",3945810,1,6,4.96,0,69.955,1.066,"Full season"],[2019,16,"26851","Marc Leishman","Australia",3886577,1,7,3.81,2,70.434,833,"Full season"],[2019,17,"30911","Tommy Fleetwood","England",3853651,0,6,5.49,-1,69.729,1.279,"Full season"],[2019,18,"26476","Chez Reavie","United States",3660909,1,6,3.59,-6,70.247,824,"Full season"],[2019,19,"34360","Patrick Reed","United States",3593844,1,5,5.1,-5,70.208,876,"Full season"],[2019,20,"33204","Shane Lowry","Ireland",3490098,1,4,4.74,1197,0,0,"Full season"],[2019,21,"29478","Kevin Kisner","United States",3489144,1,5,3.58,-5,70.416,671,"Full season"],[2019,22,"25198","Francesco Molinari","Italy",3467143,1,3,6.04,1080,70.974,38,"Full season"],[2019,23,"32839","Hideki Matsuyama","Japan",3335137,0,7,3.6,-5,69.841,1.498,"Full season"],[2019,24,"08793","Tiger Woods","United States",3199615,1,4,6.37,1069,0,0,"Full season"],[2019,25,"47959","Bryson DeChambeau","United States",3186232,1,5,6.04,-4,70.177,1.013,"Full season"],[2019,26,"27649","Brandt Snedeker","United States",3122936,0,6,2.89,2,70.52,962,"Full season"],[2019,27,"21961","Charles Howell III","United States",3039049,1,5,2.13,4,70.483,809,"Full season"],[2019,28,"39997","Corey Conners","Canada",2919864,1,4,1.91,3,70.775,620,"Full season"],[2019,29,"23320","Ryan Palmer","United States",2873316,1,6,1.86,1141,70.679,475,"Full season"],[2019,30,"39971","Sungjae Im","South Korea",2851134,0,7,2.25,0,70.252,1.023,"Full season"],[2019,31,"27974","Sung Kang","South Korea",2801650,1,4,1.79,1003,71.101,30,"Full season"],[2019,32,"45526","Abraham Ancer","Mexico",2688625,0,4,2.92,1,70.58,515,"Full season"],[2019,33,"25818","Scott Piercy","United States",2679915,0,6,1.91,1104,70.333,631,"Full season"],[2019,34,"10809","Jim Furyk","United States",2669938,0,3,2.48,911,70.09,897,"Full season"],[2019,35,"28089","Jason Day","Australia",2637480,0,6,3.88,891,70.212,833,"Full season"],[2019,36,"25900","Lucas Glover","United States",2613965,0,7,2.08,10,70.083,976,"Full season"],[2019,37,"26329","Louis Oosthuizen","South Africa",2539183,0,5,4.11,1,70.259,777,"Full season"],[2019,38,"49771","J.T. Poston","United States",2461215,1,3,1.91,1238,70.633,506,"Full season"],[2019,39,"01810","Phil Mickelson","United States",2440221,1,2,2.87,948,71.331,438,"Full season"],[2019,40,"34256","Andrew Putnam","United States",2439137,0,3,2.68,1145,70.644,536,"Full season"],[2019,41,"39546","Keith Mitchell","United States",2405360,1,3,1.86,926,71.021,254,"Full season"],[2019,42,"23621","Rory Sabbatini","Slovakia",2382298,0,6,1.88,1140,70.409,820,"Full season"],[2019,43,"29908","C.T. Pan","Chinese Taipei",2362399,1,2,2.39,1125,70.966,59,"Full season"],[2019,44,"30944","Jason Kokrak","United States",2330212,0,5,2.28,-3,70.431,1.036,"Full season"],[2019,45,"32333","Kevin Tway","United States",2300050,1,2,1.54,1242,71.02,143,"Full season"],[2019,46,"25396","Kevin Na","United States",2257309,1,3,3,823,71.144,87,"Full season"],[2019,47,"37455","Si Woo Kim","South Korea",2191808,0,5,1.96,956,70.963,134,"Full season"],[2019,48,"29420","Billy Horschel","United States",2187249,0,4,2.96,1065,70.644,829,"Full season"],[2019,49,"24138","Ian Poulter","England",2162306,0,6,3.03,1072,70.502,764,"Full season"],[2019,50,"27141","J.B. Holmes","United States",2147065,1,2,2.08,856,71.735,450,"Full season"],[2020,1,"33448","Justin Thomas","United States",7344040,3,10,8.63,-18,69.128,1.709,"Full season"],[2020,2,"46970","Jon Rahm","Spain",5959819,2,8,9.97,-17,69.127,1.823,"Full season"],[2020,3,"30925","Dustin Johnson","United States",5837267,3,7,10.28,-21,69.323,1.409,"Full season"],[2020,4,"50525","Collin Morikawa","United States",5250868,2,7,7.72,-13,69.856,1.231,"Full season"],[2020,5,"29221","Webb Simpson","United States",5097742,2,8,7.04,-9,68.978,1.597,"Full season"],[2020,6,"47959","Bryson DeChambeau","United States",4998495,1,9,5.99,-3,69.241,1.566,"Full season"],[2020,7,"40026","Daniel Berger","United States",4439420,1,7,5.01,-7,69.237,1.56,"Full season"],[2020,8,"28237","Rory McIlroy","Northern Ireland",4408415,1,7,7.9,-11,69.219,1.243,"Full season"],[2020,9,"39971","Sungjae Im","South Korea",4337811,1,7,3.9,-10,69.987,784,"Full season"],[2020,10,"34360","Patrick Reed","United States",4250060,1,8,5.86,-11,69.586,1.295,"Full season"],[2020,11,"48081","Xander Schauffele","United States",3813636,0,7,6.4,-18,69.227,1.605,"Full season"],[2020,12,"32839","Hideki Matsuyama","Japan",3665825,0,5,4.21,-7,69.766,964,"Full season"],[2020,13,"34363","Tyrrell Hatton","England",3434867,1,6,4.85,-12,69.507,1.431,"Full season"],[2020,14,"30927","Brendon Todd","United States",3390258,2,4,2.74,-4,70.151,397,"Full season"],[2020,15,"34099","Harris English","United States",3299366,0,6,2.43,-9,69.496,1.467,"Full season"],[2020,16,"35310","Lanto Griffin","United States",3188586,1,4,1.96,-5,70.451,640,"Full season"],[2020,17,"26851","Marc Leishman","Australia",3109752,1,3,3.88,2,71.186,239,"Full season"],[2020,18,"29725","Tony Finau","United States",2932286,0,7,4.65,-6,69.992,1.243,"Full season"],[2020,19,"45486","Joaquin Niemann","Chile",2914136,1,4,2.35,1,70.364,502,"Full season"],[2020,20,"45526","Abraham Ancer","Mexico",2903306,0,4,3.92,-5,69.892,897,"Full season"],[2020,21,"48822","Sebastián Muñoz","Colombia",2864142,1,5,1.86,-11,70.485,691,"Full season"],[2020,22,"46046","Scottie Scheffler","United States",2833438,0,7,3.55,-14,69.709,1.078,"Full season"],[2020,23,"25396","Kevin Na","United States",2794402,1,4,3.03,1,70.43,691,"Full season"],[2020,24,"23320","Ryan Palmer","United States",2724926,0,5,3,0,70.196,387,"Full season"],[2020,25,"27214","Kevin Streelman","United States",2520845,0,4,2.38,944,70.738,414,"Full season"],[2020,26,"29420","Billy Horschel","United States",2383908,0,6,3.18,4,70.209,771,"Full season"],[2020,27,"35891","Cameron Smith","Australia",2372487,1,2,2.37,0,70.643,146,"Full season"],[2020,28,"52372","Cameron Champ","United States",2290839,1,2,1.87,0,70.868,390,"Full season"],[2020,29,"33948","Byeong Hun An","South Korea",2283951,0,5,2.21,943,70.568,55,"Full season"],[2020,30,"24502","Adam Scott","Australia",2272434,1,1,5.32,832,69.977,905,"Full season"],[2020,31,"29478","Kevin Kisner","United States",2266752,0,4,3.45,-1,70.36,757,"Full season"],[2020,32,"56278","Matthew Wolff","United States",2224348,0,2,2.93,921,70.726,491,"Full season"],[2020,33,"31323","Gary Woodland","United States",2195131,0,6,3.89,801,69.93,783,"Full season"],[2020,34,"35449","Adam Long","United States",2186913,0,3,1.82,950,70.41,533,"Full season"],[2020,35,"34076","Joel Dahmen","United States",2120973,0,5,2.11,843,70.415,588,"Full season"],[2020,36,"35450","Patrick Cantlay","United States",2118336,0,3,5.24,922,69.764,1.316,"Full season"],[2020,37,"40098","Matt Fitzpatrick","England",2109709,0,5,4.3,887,70.07,1.067,"Full season"],[2020,38,"08793","Tiger Woods","United States",2083038,1,2,4.17,641,0,0,"Full season"],[2020,39,"35506","Mackenzie Hughes","Canada",2079951,0,4,2.22,-8,70.589,392,"Full season"],[2020,40,"29926","Danny Lee","New Zealand",2043764,0,3,1.5,777,70.609,88,"Full season"],[2020,41,"46717","Viktor Hovland","Norway",1982275,1,3,3.4,-4,70.06,789,"Full season"],[2020,42,"28089","Jason Day","Australia",1943898,0,5,2.89,666,70.163,843,"Full season"],[2020,43,"25493","Nick Taylor","Canada",1897539,1,2,1.41,741,70.607,73,"Full season"],[2020,44,"25364","Paul Casey","England",1868952,0,1,4.13,730,70.373,431,"Full season"],[2020,45,"35532","Tom Hoge","United States",1857073,0,3,1.16,728,70.605,401,"Full season"],[2020,46,"36801","Mark Hubbard","United States",1840473,0,3,1.27,792,70.414,508,"Full season"],[2020,47,"45609","Tyler Duncan","United States",1799855,1,1,1.12,834,70.84,42,"Full season"],[2020,48,"29518","Brendan Steele","United States",1739131,0,3,1.52,761,70.302,708,"Full season"],[2020,49,"47128","Richy Werenski","United States",1716407,1,3,1.28,836,70.573,484,"Full season"],[2020,50,"33399","Adam Hadwin","Canada",1710808,0,3,2.05,692,70.61,573,"Full season"],[2021,1,"46970","Jon Rahm","Spain",7705933,1,15,10.69,-20,69.3,2.098,"Full season"],[2021,2,"35450","Patrick Cantlay","United States",7638805,4,7,7.68,-21,69.736,1.82,"Full season"],[2021,3,"47959","Bryson DeChambeau","United States",7426415,2,9,6.98,-13,69.728,1.823,"Full season"],[2021,4,"50525","Collin Morikawa","United States",7059908,2,8,8.27,0,70.109,1.071,"Full season"],[2021,5,"33448","Justin Thomas","United States",6537153,1,7,7.2,-15,69.773,1.444,"Full season"],[2021,6,"34046","Jordan Spieth","United States",6470482,1,9,5.46,-4,70.118,1.069,"Full season"],[2021,7,"26329","Louis Oosthuizen","South Africa",6306679,0,8,6.17,-7,69.714,1.599,"Full season"],[2021,8,"34099","Harris English","United States",6200481,2,8,5.66,-6,70.115,984,"Full season"],[2021,9,"35891","Cameron Smith","Australia",5851867,1,8,4.42,-7,69.969,1.106,"Full season"],[2021,10,"45526","Abraham Ancer","Mexico",5816565,1,9,5.56,-10,69.939,1.243,"Full season"],[2021,11,"29725","Tony Finau","United States",5740097,1,8,5.84,-8,69.972,1.13,"Full season"],[2021,12,"48081","Xander Schauffele","United States",5240653,0,8,7.49,-14,69.859,1.484,"Full season"],[2021,13,"36689","Brooks Koepka","United States",5204136,1,8,5.85,0,69.938,1.357,"Full season"],[2021,14,"47504","Sam Burns","United States",5160030,1,8,4.13,-6,70.184,1.248,"Full season"],[2021,15,"30944","Jason Kokrak","United States",5118629,2,5,3.97,-8,70.37,1.053,"Full season"],[2021,16,"46717","Viktor Hovland","Norway",5048772,1,7,5.46,-14,69.888,1.316,"Full season"],[2021,17,"30925","Dustin Johnson","United States",5001136,1,9,8.82,-11,69.619,1.253,"Full season"],[2021,18,"32839","Hideki Matsuyama","Japan",4963594,1,3,5.03,0,70.563,641,"Full season"],[2021,19,"46046","Scottie Scheffler","United States",4505589,0,8,4.74,-3,70.326,932,"Full season"],[2021,20,"28237","Rory McIlroy","Northern Ireland",4391809,1,7,5.46,-7,70.043,1.368,"Full season"],[2021,21,"40026","Daniel Berger","United States",4258579,1,8,5.24,-8,69.862,1.296,"Full season"],[2021,22,"39971","Sungjae Im","South Korea",4157182,0,5,3.81,-4,70.281,976,"Full season"],[2021,23,"29420","Billy Horschel","United States",4030906,1,6,5.01,-10,70.925,301,"Full season"],[2021,24,"34360","Patrick Reed","United States",4019044,1,6,4.96,-2,70.039,1.313,"Full season"],[2021,25,"39997","Corey Conners","Canada",4007567,0,8,3.19,-3,70.067,1.142,"Full season"],[2021,26,"45486","Joaquin Niemann","Chile",3936912,0,5,3.58,4,70.045,1.124,"Full season"],[2021,27,"25396","Kevin Na","United States",3625982,1,5,4.28,-16,70.522,527,"Full season"],[2021,28,"20229","Stewart Cink","United States",3596319,2,3,2.47,0,70.576,463,"Full season"],[2021,29,"47483","Will Zalatoris","United States",3487352,0,8,3.23,0,70.065,1.118,"Full season"],[2021,30,"39977","Max Homa","United States",3448578,1,5,2.58,1269,70.745,327,"Full season"],[2021,31,"20396","Lee Westwood","England",3435368,0,2,3.09,1070,71.054,271,"Full season"],[2021,32,"37455","Si Woo Kim","South Korea",3245928,1,5,2.42,1293,70.872,469,"Full season"],[2021,33,"27644","Brian Harman","United States",3221821,0,5,2.55,1168,70.158,816,"Full season"],[2021,34,"25364","Paul Casey","England",3129666,0,7,4.48,1005,70.176,1.22,"Full season"],[2021,35,"26851","Marc Leishman","Australia",3107047,1,4,2.74,1167,71.303,52,"Full season"],[2021,36,"32791","K.H. Lee","South Korea",3085133,1,3,2.11,1339,71.227,74,"Full season"],[2021,37,"12716","Charley Hoffman","United States",3049763,0,5,2.03,1338,70.326,1.194,"Full season"],[2021,38,"21209","Sergio Garcia","Spain",2998555,1,4,2.63,-7,70.423,736,"Full season"],[2021,39,"29478","Kevin Kisner","United States",2952177,1,4,3.03,1214,71.216,3,"Full season"],[2021,40,"29221","Webb Simpson","United States",2783012,0,6,4.71,1195,69.901,1.253,"Full season"],[2021,41,"45157","Cam Davis","Australia",2746956,1,3,1.98,1237,70.779,472,"Full season"],[2021,42,"01810","Phil Mickelson","United States",2707199,1,1,3.13,805,71.897,442,"Full season"],[2021,43,"33667","Carlos Ortiz","Mexico",2682104,1,3,1.92,1090,70.911,399,"Full season"],[2021,44,"33204","Shane Lowry","Ireland",2636597,0,4,2.74,1103,70.318,825,"Full season"],[2021,45,"25900","Lucas Glover","United States",2577704,1,4,1.65,1102,70.861,360,"Full season"],[2021,46,"33141","Keegan Bradley","United States",2572089,0,4,1.77,1206,70.489,800,"Full season"],[2021,47,"34098","Russell Henley","United States",2545330,0,5,2.1,978,70.117,952,"Full season"],[2021,48,"56278","Matthew Wolff","United States",2507324,0,2,2.46,772,71.333,168,"Full season"],[2021,49,"26300","Matt Jones","Australia",2496677,1,3,1.8,1091,70.665,280,"Full season"],[2021,50,"33419","Cameron Tringale","United States",2428609,0,4,1.85,1165,70.11,1.079,"Full season"],[2022,1,"46046","Scottie Scheffler","United States",14046910,4,11,9.94,-20,69.293,1.677,"Full season"],[2022,2,"35891","Cameron Smith","Australia",10107897,3,7,8.92,-9,69.203,1.433,"Full season"],[2022,3,"47483","Will Zalatoris","United States",9405082,1,9,6.4,0,69.698,1.767,"Full season"],[2022,4,"35450","Patrick Cantlay","United States",9369605,2,12,8.32,-16,69.468,1.522,"Full season"],[2022,5,"28237","Rory McIlroy","Northern Ireland",8654566,3,10,9.07,-21,68.67,2.115,"Full season"],[2022,6,"48081","Xander Schauffele","United States",7427299,3,7,7.34,-18,69.462,1.652,"Full season"],[2022,7,"47504","Sam Burns","United States",7073986,3,8,5.67,-7,69.768,1.39,"Full season"],[2022,8,"40098","Matt Fitzpatrick","England",7012672,1,10,5.89,-11,69.217,1.792,"Full season"],[2022,9,"33448","Justin Thomas","United States",6829576,1,10,6.59,-17,69.493,1.68,"Full season"],[2022,10,"57366","Cameron Young","United States",6520598,0,7,4.42,-10,69.844,1.265,"Full season"],[2022,11,"29725","Tony Finau","United States",6117886,2,7,5.26,-15,69.748,1.499,"Full season"],[2022,12,"32839","Hideki Matsuyama","Japan",5776298,2,6,4.55,-13,70.116,1.015,"Full season"],[2022,13,"39971","Sungjae Im","South Korea",5567974,1,9,4.21,-20,69.762,1.668,"Full season"],[2022,14,"39977","Max Homa","United States",5289842,2,5,3.76,-17,69.972,1.343,"Full season"],[2022,15,"46970","Jon Rahm","Spain",5248220,1,8,7.3,-11,69.755,1.656,"Full season"],[2022,16,"45486","Joaquin Niemann","Chile",5076060,1,5,3.95,-13,69.829,1.274,"Full season"],[2022,17,"34046","Jordan Spieth","United States",5018444,1,6,5.54,-12,70.24,839,"Full season"],[2022,18,"29420","Billy Horschel","United States",4940600,1,5,4.63,-8,70.023,1.031,"Full season"],[2022,19,"46717","Viktor Hovland","Norway",4868461,1,5,6,-11,70.163,768,"Full season"],[2022,20,"50525","Collin Morikawa","United States",4837271,0,8,6.33,-8,69.863,978,"Full season"],[2022,21,"49960","Sepp Straka","Austria",4722434,1,5,2.66,-16,71.119,29,"Full season"],[2022,22,"35532","Tom Hoge","United States",4310046,1,6,2.52,-14,70.366,768,"Full season"],[2022,23,"30692","Scott Stallings","United States",3933593,0,7,1.99,3,70.457,558,"Full season"],[2022,24,"39997","Corey Conners","Canada",3876590,0,4,3.11,-3,69.941,1.143,"Full season"],[2022,25,"29478","Kevin Kisner","United States",3757424,0,5,3.09,1095,70.966,387,"Full season"],[2022,26,"46402","Talor Gooch","United States",3718990,1,4,2.7,0,70.063,1.022,"Full season"],[2022,27,"33141","Keegan Bradley","United States",3623137,0,6,2.34,946,70.354,1.053,"Full season"],[2022,28,"33204","Shane Lowry","Ireland",3616679,0,4,4.03,1222,69.661,1.175,"Full season"],[2022,29,"49964","Aaron Wise","United States",3454521,0,4,2.69,-12,69.944,1.053,"Full season"],[2022,30,"32791","K.H. Lee","South Korea",3347180,1,2,2.58,-1,70.578,418,"Full season"],[2022,31,"49771","J.T. Poston","United States",3292443,1,4,2.11,-11,70.295,697,"Full season"],[2022,32,"27644","Brian Harman","United States",3226839,0,6,2.7,-8,70.195,608,"Full season"],[2022,33,"47995","Davis Riley","United States",3190793,0,6,1.78,1150,70.259,578,"Full season"],[2022,34,"51634","Sahith Theegala","United States",3124668,0,5,2.04,1,70.788,339,"Full season"],[2022,35,"28252","Seamus Power","Ireland",3100241,0,5,2.59,1006,70.303,550,"Full season"],[2022,36,"31420","Anirban Lahiri","India",3084598,0,3,1.5,642,70.869,231,"Full season"],[2022,37,"39546","Keith Mitchell","United States",3068341,0,6,1.97,1063,69.916,1.074,"Full season"],[2022,38,"33419","Cameron Tringale","United States",3050519,0,5,2.01,974,70.761,269,"Full season"],[2022,39,"39324","J.J. Spaun","United States",2951152,1,3,1.5,1177,70.669,308,"Full season"],[2022,40,"24502","Adam Scott","Australia",2913198,0,5,2.86,-4,70.506,619,"Full season"],[2022,41,"47993","Denny McCarthy","United States",2882771,0,5,1.62,1111,69.971,837,"Full season"],[2022,42,"30911","Tommy Fleetwood","England",2874008,0,5,3,766,69.653,1.05,"Full season"],[2022,43,"34363","Tyrrell Hatton","England",2849792,0,3,3.02,972,70.01,1.034,"Full season"],[2022,44,"34098","Russell Henley","United States",2837505,0,4,2.1,1002,69.933,1.192,"Full season"],[2022,45,"55182","Tom Kim","South Korea",2824580,1,3,3.84,1154,0,0,"Full season"],[2022,46,"47529","Mito Pereira","Chile",2797925,0,3,2.28,962,70.216,1.111,"Full season"],[2022,47,"27129","Luke List","United States",2734720,1,3,1.72,957,70.679,476,"Full season"],[2022,48,"46442","Maverick McNealy","United States",2689754,0,4,1.76,1111,70.282,683,"Full season"],[2022,49,"33399","Adam Hadwin","Canada",2574396,0,5,1.6,777,70.595,678,"Full season"],[2022,50,"39058","Lucas Herbert","Australia",2558440,1,2,2.04,1004,71.179,280,"Full season"],[2023,1,"46046","Scottie Scheffler","United States",21014342,2,17,10.0288,-11,68.629,2.314,"Full season"],[2023,2,"46970","Jon Rahm","Spain",16522608,4,10,7.6927,-7,69.037,1.679,"Full season"],[2023,3,"46717","Viktor Hovland","Norway",14112235,3,9,6.5954,-27,69.123,1.648,"Full season"],[2023,4,"28237","Rory McIlroy","Northern Ireland",13921008,2,13,8.63,-14,68.777,2.102,"Full season"],[2023,5,"39977","Max Homa","United States",10761517,2,13,4.6415,-10,69.516,1.638,"Full season"],[2023,6,"51766","Wyndham Clark","United States",10757490,2,8,4.0168,-16,69.642,1.201,"Full season"],[2023,7,"35450","Patrick Cantlay","United States",10372998,0,10,5.4057,-13,69.19,1.869,"Full season"],[2023,8,"27644","Brian Harman","United States",9175262,1,7,4.2149,-4,69.978,0.68,"Full season"],[2023,9,"33141","Keegan Bradley","United States",9010040,2,6,3.4016,-10,70.05,0.885,"Full season"],[2023,10,"48081","Xander Schauffele","United States",8459066,0,11,5.3952,-22,69.127,1.869,"Full season"],[2023,11,"34363","Tyrrell Hatton","England",8336912,0,7,3.8038,-8,69.435,1.678,"Full season"],[2023,12,"40098","Matt Fitzpatrick","England",8144543,1,6,4.5373,-10,70.079,0.921,"Full season"],[2023,13,"32102","Rickie Fowler","United States",7864161,1,8,3.0077,-8,69.576,1.426,"Full season"],[2023,14,"55182","Tom Kim","South Korea",7774918,2,9,3.8939,-6,69.832,0.949,"Full season"],[2023,15,"50525","Collin Morikawa","United States",7573198,1,7,3.7165,-11,69.429,1.438,"Full season"],[2023,16,"51634","Sahith Theegala","United States",7284670,1,8,2.5602,1494,70.219,0.788,"Full season"],[2023,17,"34046","Jordan Spieth","United States",7240044,0,7,3.4132,1,70.15,0.71,"Full season"],[2023,18,"47504","Sam Burns","United States",7139050,1,6,3.0617,-10,70.233,0.796,"Full season"],[2023,19,"28089","Jason Day","Australia",6922758,1,8,3.1494,3,70.018,0.855,"Full season"],[2023,20,"48117","Kurt Kitayama","United States",6840062,1,4,2.5643,1300,70.534,0.125,"Full season"],[2023,21,"47993","Denny McCarthy","United States",6760012,0,8,2.2815,1454,69.825,1.004,"Full season"],[2023,22,"39971","Sungjae Im","South Korea",6665921,0,9,2.6627,-3,69.839,1.049,"Full season"],[2023,23,"30911","Tommy Fleetwood","England",6510641,0,9,3.6642,-11,69.248,1.699,"Full season"],[2023,24,"25900","Lucas Glover","United States",6399296,2,5,2.6207,-7,70.874,0.444,"Full season"],[2023,25,"34098","Russell Henley","United States",6332282,1,5,2.8871,-9,69.759,0.882,"Full season"],[2023,26,"25493","Nick Taylor","Canada",6242461,1,6,1.796,-2,70.309,0.67,"Full season"],[2023,27,"29725","Tony Finau","United States",5867652,2,5,3.0797,-6,69.933,1.124,"Full season"],[2023,28,"34099","Harris English","United States",5600689,0,5,2.1351,1201,70.414,0.516,"Full season"],[2023,29,"39997","Corey Conners","Canada",5545721,1,5,2.2677,-1,70.144,0.918,"Full season"],[2023,30,"31646","Emiliano Grillo","Argentina",5476302,1,8,2.2384,6,70.579,0.266,"Full season"],[2023,31,"47591","Eric Cole","United States",5457030,0,7,2.1207,1175,69.757,1.064,"Full season"],[2023,32,"37455","Si Woo Kim","South Korea",5397030,1,5,1.9463,-6,70.229,0.676,"Full season"],[2023,33,"57366","Cameron Young","United States",5392961,0,5,3.0588,1181,70.515,0.333,"Full season"],[2023,34,"49960","Sepp Straka","Austria",5287574,1,5,3.16,-9,70.597,0.474,"Full season"],[2023,35,"49947","Taylor Moore","United States",5077211,1,4,1.7307,6,70.56,0.349,"Full season"],[2023,36,"45157","Cam Davis","Australia",5001208,0,8,2.019,1072,70.175,0.738,"Full season"],[2023,37,"47347","Adam Schenk","United States",4987135,0,7,1.9528,-10,70.368,0.694,"Full season"],[2023,38,"40115","Adam Svensson","Canada",4844402,1,4,1.5525,1280,70.471,0.758,"Full season"],[2023,39,"35532","Tom Hoge","United States",4723610,0,4,1.4799,1113,70.567,0.482,"Full season"],[2023,40,"33399","Adam Hadwin","Canada",4713995,0,6,1.8774,1156,70.36,0.709,"Full season"],[2023,41,"22405","Justin Rose","England",4635120,1,5,2.2387,1412,69.693,1.193,"Full season"],[2023,42,"34256","Andrew Putnam","United States",4459264,0,6,1.4594,1309,70.118,0.681,"Full season"],[2023,43,"35506","Mackenzie Hughes","Canada",4318591,1,4,1.4253,911,70.749,0.201,"Full season"],[2023,44,"30926","Chris Kirk","United States",4150252,1,4,1.7431,1476,70.417,0.819,"Full season"],[2023,45,"30927","Brendon Todd","United States",3935870,0,7,1.5693,1075,70.321,0.735,"Full season"],[2023,46,"32839","Hideki Matsuyama","Japan",3874772,0,2,1.9478,942,70.181,0.902,"Full season"],[2023,47,"23108","Matt Kuchar","United States",3840222,0,6,1.6197,714,70.353,0.567,"Full season"],[2023,48,"28252","Seamus Power","Ireland",3792807,1,3,1.2513,1185,70.847,-0.046,"Full season"],[2023,49,"54628","Lee Hodges","United States",3749468,1,3,1.5178,1187,70.623,0.431,"Full season"],[2023,50,"49771","J.T. Poston","United States",3699409,0,8,1.9795,1193,70.202,0.647,"Full season"],[2024,1,"46046","Scottie Scheffler","United States",29228357,7,16,15.6,-30,68.645,2.496,"Full season"],[2024,2,"48081","Xander Schauffele","United States",18385320,2,15,9.2273,-19,69.137,1.941,"Full season"],[2024,3,"32839","Hideki Matsuyama","Japan",11257969,2,7,4.7224,-16,70.123,1.268,"Full season"],[2024,4,"51766","Wyndham Clark","United States",10901416,1,8,4.647,-17,70.444,1.032,"Full season"],[2024,5,"28237","Rory McIlroy","Northern Ireland",10893790,2,7,7.6744,-16,69.914,1.412,"Full season"],[2024,6,"52955","Ludvig Åberg","Sweden",9833547,0,8,5.3173,-12,69.988,1.064,"Full season"],[2024,7,"51634","Sahith Theegala","United States",8474215,0,9,3.504,-24,70.373,0.944,"Full season"],[2024,8,"50525","Collin Morikawa","United States",8383572,0,8,5.4132,-26,69.794,1.203,"Full season"],[2024,9,"33141","Keegan Bradley","United States",6879455,1,3,3.5105,-8,70.748,0.34,"Full season"],[2024,10,"39971","Sungjae Im","Republic of Korea",6286205,0,8,2.7505,-18,70.294,0.8,"Full season"],[2024,11,"35450","Patrick Cantlay","United States",6279965,0,4,3.5191,-11,70.549,0.664,"Full season"],[2024,12,"47504","Sam Burns","United States",6185830,0,8,2.8924,-15,70.203,1.003,"Full season"],[2024,13,"33204","Shane Lowry","Ireland",6095881,1,7,2.629,-16,70.342,0.657,"Full season"],[2024,14,"30926","Chris Kirk","United States",6061136,1,3,1.9257,-3,71.013,0.105,"Full season"],[2024,15,"33948","Byeong Hun An","Republic of Korea",5871643,0,5,2.7215,-8,70.627,0.499,"Full season"],[2024,16,"29725","Tony Finau","United States",5706467,0,5,2.645,-6,70.332,1.033,"Full season"],[2024,17,"52215","Robert MacIntyre","Scotland",5400384,2,6,3.3753,-11,70.266,0.725,"Full season"],[2024,18,"56630","Akshay Bhatia","United States",5344905,1,3,2.5618,-5,70.448,0.748,"Full season"],[2024,19,"49771","J.T. Poston","United States",5271598,1,6,2.2994,1355,70.577,0.486,"Full season"],[2024,20,"48153","Matthieu Pavon","France",5254412,1,4,2.4487,-11,70.948,-0.014,"Full season"],[2024,21,"33448","Justin Thomas","United States",5223561,0,6,2.9,-14,70.2,0.762,"Full season"],[2024,22,"27644","Brian Harman","United States",5201770,0,3,2.5918,1588,70.39,0.788,"Full season"],[2024,23,"34098","Russell Henley","United States",5080969,0,7,3.2325,-19,70.215,0.95,"Full season"],[2024,24,"57362","Austin Eckroat","United States",5054871,2,3,2.2795,1294,70.633,0.301,"Full season"],[2024,25,"29420","Billy Horschel","United States",5037278,1,7,3.3086,-6,69.875,0.731,"Full season"],[2024,26,"45522","Christiaan Bezuidenhout","South Africa",5026363,0,3,1.8757,3,70.363,0.641,"Full season"],[2024,27,"35532","Tom Hoge","United States",4841123,0,4,1.6088,3,70.727,0.483,"Full season"],[2024,28,"40250","Taylor Pendrith","Canada",4797854,1,7,2.0144,-14,70.185,0.88,"Full season"],[2024,29,"24502","Adam Scott","Australia",4753172,0,5,3.0252,-19,69.969,0.938,"Full season"],[2024,30,"36799","Stephan Jaeger","Germany",4732554,1,4,1.9233,1327,70.825,0.392,"Full season"],[2024,31,"46442","Maverick McNealy","United States",4708358,1,6,2.4846,1045,70.104,1.037,"Full season"],[2024,32,"46717","Viktor Hovland","Norway",4616727,0,2,4.3429,-15,70.7,0.721,"Full season"],[2024,33,"46414","Aaron Rai","England",4613515,1,6,2.8614,-6,70.027,1.185,"Full season"],[2024,34,"30911","Tommy Fleetwood","England",4609158,0,4,3.7925,-10,70.442,0.659,"Full season"],[2024,35,"49960","Sepp Straka","Austria",4601079,0,4,2.2373,-3,70.906,0.205,"Full season"],[2024,36,"47483","Will Zalatoris","United States",4569320,0,3,1.6568,1461,70.849,0.016,"Full season"],[2024,37,"37455","Si Woo Kim","Republic of Korea",4526733,0,3,1.6992,1580,70.274,0.761,"Full season"],[2024,38,"58168","Davis Thompson","United States",4420940,1,5,2.1591,1523,69.944,1.06,"Full season"],[2024,39,"51977","Max Greyserman","United States",4297356,0,6,2.2807,1239,69.998,0.87,"Full season"],[2024,40,"55182","Tom Kim","Republic of Korea",4124968,0,2,2.8905,1079,70.715,0.371,"Full season"],[2024,41,"28089","Jason Day","Australia",4117518,0,4,2.2135,1567,70.758,0.483,"Full season"],[2024,42,"39997","Corey Conners","Canada",4061539,0,4,2.1798,1433,70.24,0.962,"Full season"],[2024,43,"57366","Cameron Young","United States",4057224,0,6,2.2083,1295,70.841,0.262,"Full season"],[2024,44,"33399","Adam Hadwin","Canada",4052108,0,5,1.7246,1266,71.018,-0.028,"Full season"],[2024,45,"45157","Cam Davis","Australia",4039533,1,2,1.9277,1490,71.404,-0.426,"Full season"],[2024,46,"47993","Denny McCarthy","United States",4022193,0,4,2.1286,1498,70.459,0.716,"Full season"],[2024,47,"39977","Max Homa","United States",3843467,0,3,2.1695,1288,71.176,-0.054,"Full season"],[2024,48,"35506","Mackenzie Hughes","Canada",3769962,0,6,1.8289,1048,70.425,0.705,"Full season"],[2024,49,"47591","Eric Cole","United States",3726147,0,5,1.8149,1173,70.828,0.287,"Full season"],[2024,50,"40098","Matt Fitzpatrick","England",3705463,0,3,2.1507,1376,70.751,0.406,"Full season"],[2025,1,"46046","Scottie Scheffler","United States",27659550,6,17,16.3085,-14,68.131,2.743,"Full season"],[2025,2,"30911","Tommy Fleetwood","England",18496238,1,8,5.4423,-18,69.357,1.629,"Full season"],[2025,3,"28237","Rory McIlroy","Northern Ireland",16992418,3,8,9.0983,-6,69.083,1.543,"Full season"],[2025,4,"34098","Russell Henley","United States",14707570,1,10,4.9089,-15,69.757,1.317,"Full season"],[2025,5,"39324","J.J. Spaun","United States",13278222,1,7,4.7699,-4,69.83,1.158,"Full season"],[2025,6,"54591","Ben Griffin","United States",11724352,3,12,4.5452,-12,69.692,1.223,"Full season"],[2025,7,"33448","Justin Thomas","United States",10896155,1,8,4.5036,-13,70.187,1.001,"Full season"],[2025,8,"49960","Sepp Straka","Austria",10650894,2,6,3.8794,7,70.047,1.072,"Full season"],[2025,9,"35450","Patrick Cantlay","United States",9441931,0,5,2.8356,-15,70.354,1.057,"Full season"],[2025,10,"22405","Justin Rose","England",8857976,1,5,4.0183,-7,70.614,0.084,"Full season"],[2025,11,"34099","Harris English","United States",8840132,1,4,3.8002,-10,70.143,0.611,"Full season"],[2025,12,"57366","Cameron Young","United States",8789813,1,8,3.2838,-14,70.51,0.802,"Full season"],[2025,13,"33141","Keegan Bradley","United States",8702812,1,6,3.6987,-13,70.195,0.981,"Full season"],[2025,14,"52215","Robert MacIntyre","Scotland",8467191,0,6,4.6412,-9,69.9,0.894,"Full season"],[2025,15,"46442","Maverick McNealy","United States",8322575,0,7,3.0797,-6,70.264,0.74,"Full season"],[2025,16,"52955","Ludvig Åberg","Sweden",8276973,1,6,3.5557,-7,70.281,0.506,"Full season"],[2025,17,"39997","Corey Conners","Canada",8167903,0,7,2.4876,-14,70.26,0.683,"Full season"],[2025,18,"50525","Collin Morikawa","United States",7915347,0,4,3.6514,-8,70.313,0.892,"Full season"],[2025,19,"51997","Andrew Novak","United States",7788219,1,6,2.2239,-4,70.699,0.363,"Full season"],[2025,20,"33204","Shane Lowry","Ireland",7082794,0,4,2.7702,-10,70.312,0.769,"Full season"],[2025,21,"47504","Sam Burns","United States",6801982,0,6,2.8014,-13,70.184,0.997,"Full season"],[2025,22,"32839","Hideki Matsuyama","Japan",6650152,1,1,3.6434,3,70.214,0.755,"Full season"],[2025,23,"46717","Viktor Hovland","Norway",5824239,1,3,3.7797,-11,70.229,0.844,"Full season"],[2025,24,"27644","Brian Harman","United States",5547660,1,4,2.1856,-10,70.734,0.228,"Full season"],[2025,25,"25493","Nick Taylor","Canada",5431209,1,3,1.8187,-8,70.459,0.654,"Full season"],[2025,26,"39971","Sungjae Im","Republic of Korea",5082896,0,3,2.0101,0,70.81,-0.046,"Full season"],[2025,27,"56630","Akshay Bhatia","United States",4882187,0,4,1.9839,-10,70.558,0.638,"Full season"],[2025,28,"59095","Chris Gotterup","United States",4844784,1,4,2.64,-12,70.151,0.585,"Full season"],[2025,29,"48081","Xander Schauffele","United States",4839866,1,4,5.152,1220,70.112,0.454,"Full season"],[2025,30,"60004","Jacob Bridgeman","United States",4437269,0,5,1.5619,0,70.645,0.287,"Full season"],[2025,31,"25900","Lucas Glover","United States",4397743,0,5,1.7396,1296,70.576,0.425,"Full season"],[2025,32,"55893","Sam Stevens","United States",4392752,0,4,1.918,1263,70.569,0.293,"Full season"],[2025,33,"57975","Harry Hall","England",4309601,0,5,1.7782,-9,69.764,1.178,"Full season"],[2025,34,"35532","Tom Hoge","United States",4201600,0,4,1.3574,1124,71.595,-0.431,"Full season"],[2025,35,"37455","Si Woo Kim","Republic of Korea",4184686,0,3,1.9616,1278,70.379,0.751,"Full season"],[2025,36,"40026","Daniel Berger","United States",4115448,0,2,1.7703,1180,70.4,0.527,"Full season"],[2025,37,"39975","Michael Kim","United States",4105211,0,4,2.1523,1400,70.435,0.563,"Full season"],[2025,38,"29936","Ryan Fox","New Zealand",3981947,2,2,2.0878,1209,70.364,0.47,"Full season"],[2025,39,"40250","Taylor Pendrith","Canada",3978452,0,4,1.9039,1366,70.39,0.664,"Full season"],[2025,40,"59018","Ryan Gerard","United States",3872916,1,4,1.9984,1250,70.517,0.364,"Full season"],[2025,41,"47993","Denny McCarthy","United States",3871251,0,2,1.6537,1242,70.465,0.597,"Full season"],[2025,42,"40098","Matt Fitzpatrick","England",3831413,0,5,3.003,1304,70.382,0.647,"Full season"],[2025,43,"51977","Max Greyserman","United States",3798185,0,3,2.2273,855,70.847,0.296,"Full season"],[2025,44,"28089","Jason Day","Australia",3740375,0,4,1.8544,1241,70.48,0.451,"Full season"],[2025,45,"33653","Thomas Detry","Belgium",3651876,1,2,1.84,1184,70.869,0.052,"Full season"],[2025,46,"48117","Kurt Kitayama","United States",3476376,1,4,2.1307,1298,70.194,0.826,"Full season"],[2025,47,"32102","Rickie Fowler","United States",3441954,0,3,1.4959,1372,70.475,0.354,"Full season"],[2025,48,"52666","Sami Valimaki","Finland",3388761,1,4,2.1094,463,70.56,0.605,"Full season"],[2025,49,"46443","Brian Campbell","United States",3370767,2,2,1.6605,1160,71.392,-0.675,"Full season"],[2025,50,"34021","Bud Cauley","United States",3321090,0,4,1.6608,1133,70.349,0.645,"Full season"],[2026,1,"40098","Matt Fitzpatrick","England",10550238,3,5,0,2394,69.868,1.778,"Through Zurich Classic of New Orleans (R2026018)"],[2026,2,"46046","Scottie Scheffler","United States",8406430,1,5,0,2031,69.301,2.049,"Through Zurich Classic of New Orleans (R2026018)"],[2026,3,"57366","Cameron Young","United States",7694670,1,4,0,1671,69.994,1.422,"Through Zurich Classic of New Orleans (R2026018)"],[2026,4,"60004","Jacob Bridgeman","United States",6740179,1,4,0,1495,69.861,1.74,"Through Zurich Classic of New Orleans (R2026018)"],[2026,5,"28237","Rory McIlroy","Northern Ireland",6714875,1,2,0,1226,69.599,1.785,"Through Zurich Classic of New Orleans (R2026018)"],[2026,6,"50525","Collin Morikawa","United States",6614430,1,5,0,1719,69.618,1.578,"Through Zurich Classic of New Orleans (R2026018)"],[2026,7,"56630","Akshay Bhatia","United States",6114402,1,3,0,1282,70.473,1.515,"Through Zurich Classic of New Orleans (R2026018)"],[2026,8,"59095","Chris Gotterup","United States",4543363,2,3,0,1299,70.099,1.239,"Through Zurich Classic of New Orleans (R2026018)"],[2026,9,"48081","Xander Schauffele","United States",4166488,0,4,0,1034,70.028,1.388,"Through Zurich Classic of New Orleans (R2026018)"],[2026,10,"37455","Si Woo Kim","Republic of Korea",3971938,0,5,0,1074,70.206,1.377,"Through Zurich Classic of New Orleans (R2026018)"],[2026,11,"52955","Ludvig Åberg","Sweden",3916733,0,4,0,1143,70.431,1.58,"Through Zurich Classic of New Orleans (R2026018)"],[2026,12,"37378","Min Woo Lee","Australia",3727899,0,3,0,952,70.298,1.373,"Through Zurich Classic of New Orleans (R2026018)"],[2026,13,"22405","Justin Rose","England",3295403,1,2,0,913,70.692,0.552,"Through Zurich Classic of New Orleans (R2026018)"],[2026,14,"49960","Sepp Straka","Austria",3177220,0,2,0,757,71.33,0.778,"Through Zurich Classic of New Orleans (R2026018)"],[2026,15,"47420","Jake Knapp","United States",3083713,0,5,0,928,69.571,1.456,"Through Zurich Classic of New Orleans (R2026018)"],[2026,16,"52215","Robert MacIntyre","Scotland",2965308,0,3,0,796,70.407,1.216,"Through Zurich Classic of New Orleans (R2026018)"],[2026,17,"34098","Russell Henley","United States",2931317,0,3,0,832,70.176,1.087,"Through Zurich Classic of New Orleans (R2026018)"],[2026,18,"40026","Daniel Berger","United States",2864780,0,2,0,592,71.13,0.404,"Through Zurich Classic of New Orleans (R2026018)"],[2026,19,"48117","Kurt Kitayama","United States",2856321,0,2,0,671,70.839,0.58,"Through Zurich Classic of New Orleans (R2026018)"],[2026,20,"32839","Hideki Matsuyama","Japan",2833770,0,2,0,789,70.181,1.197,"Through Zurich Classic of New Orleans (R2026018)"],[2026,21,"30911","Tommy Fleetwood","England",2670600,0,4,0,809,70.705,1.085,"Through Zurich Classic of New Orleans (R2026018)"],[2026,22,"31323","Gary Woodland","United States",2659253,1,2,0,752,70.624,0.78,"Through Zurich Classic of New Orleans (R2026018)"],[2026,23,"51287","Ryo Hisatsune","Japan",2475296,0,4,0,669,70.49,1.039,"Through Zurich Classic of New Orleans (R2026018)"],[2026,24,"59018","Ryan Gerard","United States",2464348,0,2,0,711,70.425,0.861,"Through Zurich Classic of New Orleans (R2026018)"],[2026,25,"51349","Nico Echavarria","Colombia",2392000,1,2,0,674,72.278,-0.847,"Through Zurich Classic of New Orleans (R2026018)"],[2026,26,"52453","Nicolai Højgaard","Denmark",2331427,0,3,0,644,70.1,1.307,"Through Zurich Classic of New Orleans (R2026018)"],[2026,27,"51634","Sahith Theegala","United States",2246098,0,4,0,657,70.248,0.889,"Through Zurich Classic of New Orleans (R2026018)"],[2026,28,"47504","Sam Burns","United States",2235790,0,2,0,688,70.536,0.575,"Through Zurich Classic of New Orleans (R2026018)"],[2026,29,"39324","J.J. Spaun","United States",2216522,1,1,0,610,71.271,0.252,"Through Zurich Classic of New Orleans (R2026018)"],[2026,30,"24502","Adam Scott","Australia",1998997,0,1,0,613,70.284,1.095,"Through Zurich Classic of New Orleans (R2026018)"],[2026,31,"35450","Patrick Cantlay","United States",1991903,0,2,0,536,70.614,0.855,"Through Zurich Classic of New Orleans (R2026018)"],[2026,32,"34046","Jordan Spieth","United States",1986808,0,0,0,514,70.644,0.656,"Through Zurich Classic of New Orleans (R2026018)"],[2026,33,"36699","Patrick Rodgers","United States",1955088,0,1,0,524,71.047,0.317,"Through Zurich Classic of New Orleans (R2026018)"],[2026,34,"59836","Pierceson Coody","United States",1895050,0,2,0,521,70.729,0.403,"Through Zurich Classic of New Orleans (R2026018)"],[2026,35,"32102","Rickie Fowler","United States",1836077,0,2,0,517,70.634,0.761,"Through Zurich Classic of New Orleans (R2026018)"],[2026,36,"60386","Sudarshan Yellamaraju","Canada",1829152,0,2,0,552,70.285,1.147,"Through Zurich Classic of New Orleans (R2026018)"],[2026,37,"34099","Harris English","United States",1823115,0,1,0,585,70.586,0.841,"Through Zurich Classic of New Orleans (R2026018)"],[2026,38,"46442","Maverick McNealy","United States",1815969,0,1,0,472,70.412,0.97,"Through Zurich Classic of New Orleans (R2026018)"],[2026,39,"59141","Matt McCarty","United States",1790468,0,2,0,505,71.317,-0.086,"Through Zurich Classic of New Orleans (R2026018)"],[2026,40,"28089","Jason Day","Australia",1682198,0,2,0,455,70.817,0.629,"Through Zurich Classic of New Orleans (R2026018)"],[2026,41,"33204","Shane Lowry","Ireland",1680825,0,2,0,471,70.49,0.794,"Through Zurich Classic of New Orleans (R2026018)"],[2026,42,"55893","Sam Stevens","United States",1585121,0,2,0,438,70.725,0.465,"Through Zurich Classic of New Orleans (R2026018)"],[2026,43,"46717","Viktor Hovland","Norway",1512678,0,1,0,349,70.927,0.46,"Through Zurich Classic of New Orleans (R2026018)"],[2026,44,"50095","Austin Smotherman","United States",1466551,0,2,0,387,71.167,0.226,"Through Zurich Classic of New Orleans (R2026018)"],[2026,45,"59440","Ricky Castillo","United States",1363679,1,2,0,484,70.581,0.218,"Through Zurich Classic of New Orleans (R2026018)"],[2026,46,"34021","Bud Cauley","United States",1338449,0,1,0,401,71.25,0.11,"Through Zurich Classic of New Orleans (R2026018)"],[2026,47,"34256","Andrew Putnam","United States",1327792,0,2,0,380,70.766,0.419,"Through Zurich Classic of New Orleans (R2026018)"],[2026,48,"46340","Alex Smalley","United States",1326550,0,1,0,376,70.595,0.81,"Through Zurich Classic of New Orleans (R2026018)"],[2026,49,"57364","Michael Thorbjornsen","United States",1316892,0,1,0,358,71.193,0.119,"Through Zurich Classic of New Orleans (R2026018)"],[2026,50,"27644","Brian Harman","United States",1266738,0,0,0,303,71.819,-0.461,"Through Zurich Classic of New Orleans (R2026018)"]];
+    const RUN_DATE = "2026-04-30";
+    const GENERATED_AT = "2026-04-30T13:00:32";
+    const COVERAGE_NOTE = "Through Zurich Classic of New Orleans (R2026018)";
+
+    const MAJOR_WINS = {
+      "Tiger Woods": 15,
+      "Phil Mickelson": 6,
+      "Rory McIlroy": 5,
+      "Brooks Koepka": 5,
+      "Ernie Els": 4,
+      "Vijay Singh": 3,
+      "Jordan Spieth": 3,
+      "Padraig Harrington": 3,
+      "Payne Stewart": 3,
+      "Dustin Johnson": 2,
+      "Collin Morikawa": 2,
+      "Jon Rahm": 2,
+      "Bryson DeChambeau": 2,
+      "Bubba Watson": 2,
+      "Zach Johnson": 2,
+      "Retief Goosen": 2,
+      "Martin Kaymer": 2,
+      "Angel Cabrera": 2,
+      "Bernhard Langer": 2,
+      "Jose Maria Olazabal": 2,
+      "Scottie Scheffler": 2,
+      "Xander Schauffele": 2,
+      "Justin Thomas": 2,
+      "Gary Woodland": 1,
+      "Brian Harman": 1,
+      "Wyndham Clark": 1,
+      "Matt Fitzpatrick": 1,
+      "Hideki Matsuyama": 1,
+      "Shane Lowry": 1,
+      "Patrick Reed": 1,
+      "Sergio Garcia": 1,
+      "Henrik Stenson": 1,
+      "Jimmy Walker": 1,
+      "Jason Day": 1,
+      "Justin Rose": 1,
+      "Adam Scott": 1,
+      "Jason Dufner": 1,
+      "Keegan Bradley": 1,
+      "Webb Simpson": 1,
+      "Charl Schwartzel": 1,
+      "Louis Oosthuizen": 1,
+      "Graeme McDowell": 1,
+      "Darren Clarke": 1,
+      "Lucas Glover": 1,
+      "Geoff Ogilvy": 1,
+      "Mike Weir": 1,
+      "David Toms": 1,
+      "Stewart Cink": 1,
+      "David Duval": 1,
+      "Jim Furyk": 1,
+      "Davis Love III": 1,
+      "Tom Lehman": 1,
+      "Justin Leonard": 1,
+      "Y.E. Yang": 1,
+      "Trevor Immelman": 1,
+      "Rich Beem": 1,
+      "Shaun Micheel": 1,
+      "Ben Curtis": 1,
+      "Todd Hamilton": 1,
+      "Mark Brooks": 1,
+      "Francesco Molinari": 1
+    };
+
+    const els = {
+      search: document.getElementById("playerSearch"),
+      clear: document.getElementById("clearSearch"),
+      suggestions: document.getElementById("suggestions"),
+      quickPicks: document.getElementById("quickPicks"),
+      seasonPill: document.getElementById("seasonPill"),
+      avatar: document.getElementById("playerAvatar"),
+      playerName: document.getElementById("playerName"),
+      playerMeta: document.getElementById("playerMeta"),
+      snapshotGrid: document.getElementById("snapshotGrid"),
+      statCards: document.getElementById("statCards"),
+      recentRows: document.getElementById("recentRows"),
+      recentSubtitle: document.getElementById("recentSubtitle"),
+      timeline: document.getElementById("timeline"),
+      timelineSubtitle: document.getElementById("timelineSubtitle"),
+      earningsChart: document.getElementById("earningsChart"),
+      winsChart: document.getElementById("winsChart"),
+      rankingChart: document.getElementById("rankingChart"),
+      earningsChartValue: document.getElementById("earningsChartValue"),
+      winsChartValue: document.getElementById("winsChartValue"),
+      rankingChartValue: document.getElementById("rankingChartValue"),
+      sourceNote: document.getElementById("sourceNote"),
+    };
+
+    const seasons = SEASON_ROWS.map(toRow).sort((a, b) => a.year - b.year || a.moneyRank - b.moneyRank);
+    const players = buildPlayers(seasons);
+    Object.values(players).forEach(preparePlayer);
+    const playerList = Object.values(players).sort((a, b) => b.latest.year - a.latest.year || a.latest.moneyRank - b.latest.moneyRank || a.name.localeCompare(b.name));
+    const worldRanks = buildWorldRankLookup(seasons);
+    let currentPlayer = playerList.find((p) => p.name === "Scottie Scheffler") || playerList[0];
+    let activeSuggestionIndex = -1;
+
+    init();
+
+    function toRow(values) {
+      return FIELD_NAMES.reduce((row, key, index) => {
+        row[key] = values[index];
+        return row;
+      }, {});
+    }
+
+    function buildPlayers(rows) {
+      return rows.reduce((map, row) => {
+        if (!map[row.player]) {
+          map[row.player] = { name: row.player, playerId: row.playerId, country: row.country, rows: [] };
+        }
+        map[row.player].rows.push(row);
+        map[row.player].country = row.country || map[row.player].country;
+        return map;
+      }, {});
+    }
+
+    function preparePlayer(player) {
+      player.rows.sort((a, b) => a.year - b.year);
+      player.latest = player.rows[player.rows.length - 1];
+      player.first = player.rows[0];
+      player.totalEarnings = player.rows.reduce((sum, row) => sum + row.money, 0);
+      player.totalWins = player.rows.reduce((sum, row) => sum + row.wins, 0);
+      player.majorWins = MAJOR_WINS[player.name] ?? 0;
+      player.latestOwgr = [...player.rows].reverse().find((row) => row.owgrPoints > 0);
+    }
+
+    function buildWorldRankLookup(rows) {
+      const lookup = new Map();
+      const byYear = rows.reduce((map, row) => {
+        if (row.owgrPoints > 0) {
+          if (!map.has(row.year)) map.set(row.year, []);
+          map.get(row.year).push(row);
+        }
+        return map;
+      }, new Map());
+
+      byYear.forEach((yearRows, year) => {
+        yearRows
+          .slice()
+          .sort((a, b) => b.owgrPoints - a.owgrPoints)
+          .forEach((row, index) => lookup.set(`${row.playerId}-${year}`, index + 1));
+      });
+      return lookup;
+    }
+
+    function init() {
+      els.seasonPill.textContent = RUN_DATE ? `Data date ${formatDate(RUN_DATE)}` : "Local PGA data";
+      els.sourceNote.textContent = `Local PGA Tour stats file generated ${formatDate(RUN_DATE)}. Career earnings and wins reflect top-50 Official Money seasons in this dataset; 2026 coverage is ${COVERAGE_NOTE}. Major wins use a curated embedded lookup for common major winners.`;
+      renderQuickPicks();
+      bindEvents();
+      selectPlayer(currentPlayer.name);
+    }
+
+    function bindEvents() {
+      els.search.addEventListener("input", () => {
+        renderSuggestions(els.search.value);
+      });
+
+      els.search.addEventListener("focus", () => {
+        renderSuggestions(els.search.value);
+      });
+
+      els.search.addEventListener("keydown", (event) => {
+        const buttons = [...els.suggestions.querySelectorAll("button")];
+        if (event.key === "ArrowDown") {
+          event.preventDefault();
+          activeSuggestionIndex = Math.min(buttons.length - 1, activeSuggestionIndex + 1);
+          updateSuggestionFocus(buttons);
+        }
+        if (event.key === "ArrowUp") {
+          event.preventDefault();
+          activeSuggestionIndex = Math.max(0, activeSuggestionIndex - 1);
+          updateSuggestionFocus(buttons);
+        }
+        if (event.key === "Enter") {
+          event.preventDefault();
+          const pick = buttons[activeSuggestionIndex] || buttons[0];
+          if (pick) selectPlayer(pick.dataset.player);
+        }
+        if (event.key === "Escape") {
+          closeSuggestions();
+        }
+      });
+
+      els.clear.addEventListener("click", () => {
+        els.search.value = "";
+        els.search.focus();
+        renderSuggestions("");
+      });
+
+      document.addEventListener("click", (event) => {
+        if (!event.target.closest(".search-wrap")) closeSuggestions();
+      });
+    }
+
+    function renderQuickPicks() {
+      const names = ["Scottie Scheffler", "Rory McIlroy", "Tiger Woods", "Jordan Spieth"];
+      els.quickPicks.innerHTML = names
+        .filter((name) => players[name])
+        .map((name) => `<button type="button" data-player="${escapeHtml(name)}">${escapeHtml(name.split(" ").slice(-1)[0])}</button>`)
+        .join("");
+      els.quickPicks.querySelectorAll("button").forEach((button) => {
+        button.addEventListener("click", () => selectPlayer(button.dataset.player));
+      });
+    }
+
+    function renderSuggestions(query) {
+      const normalized = query.trim().toLowerCase();
+      const matches = playerList
+        .filter((player) => !normalized || player.name.toLowerCase().includes(normalized) || player.country.toLowerCase().includes(normalized))
+        .slice(0, 9);
+
+      activeSuggestionIndex = -1;
+      if (!matches.length) {
+        els.suggestions.innerHTML = `<div class="empty-state">No matching golfer in the embedded top-50 season data.</div>`;
+        els.suggestions.classList.add("is-open");
+        return;
+      }
+
+      els.suggestions.innerHTML = matches.map((player) => {
+        const latest = player.latest;
+        return `<button type="button" class="suggestion" data-player="${escapeHtml(player.name)}" role="option">
+          <span class="suggestion-badge">${initials(player.name)}</span>
+          <span>
+            <span class="suggestion-name">${escapeHtml(player.name)}</span>
+            <span class="suggestion-meta">${escapeHtml(player.country)} · ${player.first.year}-${latest.year}</span>
+          </span>
+          <span class="suggestion-rank">#${latest.moneyRank} · ${latest.year}</span>
+        </button>`;
+      }).join("");
+
+      els.suggestions.querySelectorAll("button").forEach((button) => {
+        button.addEventListener("click", () => selectPlayer(button.dataset.player));
+      });
+      els.suggestions.classList.add("is-open");
+    }
+
+    function closeSuggestions() {
+      els.suggestions.classList.remove("is-open");
+      activeSuggestionIndex = -1;
+    }
+
+    function updateSuggestionFocus(buttons) {
+      buttons.forEach((button, index) => button.classList.toggle("is-active", index === activeSuggestionIndex));
+      buttons[activeSuggestionIndex]?.scrollIntoView({ block: "nearest" });
+    }
+
+    function selectPlayer(name) {
+      const player = players[name];
+      if (!player) return;
+      currentPlayer = player;
+      els.search.value = player.name;
+      closeSuggestions();
+      renderDashboard(player);
+    }
+
+    function renderDashboard(player) {
+      const rows = player.rows;
+      const latest = player.latest;
+      const row2026 = rows.find((row) => row.year === 2026);
+      const bestMoney = maxBy(rows, "money");
+      const bestRank = minBy(rows, "moneyRank");
+      const mostWins = maxBy(rows, "wins");
+      const latestOwgrRank = player.latestOwgr ? worldRanks.get(`${player.latestOwgr.playerId}-${player.latestOwgr.year}`) : null;
+
+      els.avatar.textContent = initials(player.name);
+      els.playerName.textContent = player.name;
+      els.playerMeta.innerHTML = [
+        player.country,
+        `${player.first.year}-${latest.year}`,
+        latest.coverage,
+      ].filter(Boolean).map((item) => `<span class="meta-chip">${escapeHtml(item)}</span>`).join("");
+
+      els.snapshotGrid.innerHTML = [
+        ["Latest Money Rank", `#${latest.moneyRank}`],
+        ["Latest Earnings", formatCurrency(latest.money)],
+        ["Scoring Avg", latest.scoringAvg ? latest.scoringAvg.toFixed(3) : "—"],
+        ["FedEx Points", latest.fedexPoints ? formatNumber(latest.fedexPoints) : "—"],
+      ].map(([label, value]) => snapshot(label, value)).join("");
+
+      els.statCards.innerHTML = [
+        statCard("Career Earnings", formatCurrency(player.totalEarnings), `${rows.length} tracked top-50 seasons`),
+        statCard("Total Wins", formatNumber(player.totalWins), "PGA Tour season wins in data"),
+        statCard("Major Wins", formatNumber(player.majorWins), player.majorWins ? "Curated major championship count" : "No curated major wins listed"),
+        statCard("World Ranking", latestOwgrRank ? `#${latestOwgrRank}` : "—", player.latestOwgr ? `${player.latestOwgr.year} OWGR points rank in top 50` : "OWGR points unavailable"),
+        statCard("2026 Season Earnings", row2026 ? formatCurrency(row2026.money) : "—", row2026 ? `#${row2026.moneyRank} on 2026 money list` : "No 2026 top-50 row"),
+      ].join("");
+
+      renderRecentTable(rows);
+      renderTimeline(player, bestMoney, bestRank, mostWins, row2026);
+      renderCharts(player);
+    }
+
+    function renderRecentTable(rows) {
+      const recent = rows.slice().sort((a, b) => b.year - a.year).slice(0, 8);
+      els.recentSubtitle.textContent = `${recent.length} latest tracked seasons`;
+      els.recentRows.innerHTML = recent.map((row) => `<tr>
+        <td>${row.year}</td>
+        <td><span class="rank-pill">#${row.moneyRank}</span></td>
+        <td>${formatCurrency(row.money)}</td>
+        <td>${formatNumber(row.wins)}</td>
+        <td>${formatNumber(row.top10)}</td>
+        <td>${row.scoringAvg ? row.scoringAvg.toFixed(3) : "—"}</td>
+        <td>${cleanSg(row.sgTotal) ? cleanSg(row.sgTotal).toFixed(3) : "—"}</td>
+      </tr>`).join("");
+    }
+
+    function renderTimeline(player, bestMoney, bestRank, mostWins, row2026) {
+      const milestones = [
+        {
+          year: player.first.year,
+          title: "First top-50 money season",
+          meta: `#${player.first.moneyRank} · ${formatCurrency(player.first.money)}`
+        },
+        {
+          year: bestRank.year,
+          title: "Best money-list finish",
+          meta: `#${bestRank.moneyRank} · ${formatCurrency(bestRank.money)}`
+        },
+        {
+          year: bestMoney.year,
+          title: "Peak earnings season",
+          meta: `${formatCurrency(bestMoney.money)} · ${formatNumber(bestMoney.wins)} wins`
+        },
+        {
+          year: mostWins.year,
+          title: "Most wins in a tracked season",
+          meta: `${formatNumber(mostWins.wins)} wins · ${formatNumber(mostWins.top10)} top 10s`
+        },
+        {
+          year: player.latest.year,
+          title: row2026 ? "2026 season position" : "Latest tracked season",
+          meta: `#${player.latest.moneyRank} · ${formatCurrency(player.latest.money)}`
+        }
+      ];
+
+      const unique = [];
+      milestones.forEach((item) => {
+        if (!unique.some((existing) => existing.title === item.title && existing.year === item.year && existing.meta === item.meta)) {
+          unique.push(item);
+        }
+      });
+
+      els.timelineSubtitle.textContent = `${player.first.year}-${player.latest.year}`;
+      els.timeline.innerHTML = unique
+        .sort((a, b) => a.year - b.year)
+        .map((item) => `<div class="timeline-item">
+          <div class="timeline-dot">${String(item.year).slice(-2)}</div>
+          <div class="timeline-copy">
+            <div class="timeline-title">${escapeHtml(item.title)}</div>
+            <div class="timeline-meta">${item.year} · ${escapeHtml(item.meta)}</div>
+          </div>
+        </div>`).join("");
+    }
+
+    function renderCharts(player) {
+      const rows = player.rows;
+      const earningsPoints = rows.map((row) => ({ x: row.year, y: row.money, label: formatCurrency(row.money) }));
+      const winsPoints = rows.map((row) => ({ x: row.year, y: row.wins, label: `${row.wins} wins` }));
+      const rankingPoints = rows.map((row) => ({ x: row.year, y: row.moneyRank, label: `#${row.moneyRank}` }));
+
+      els.earningsChartValue.textContent = `${formatCurrency(maxBy(rows, "money").money)} peak`;
+      els.winsChartValue.textContent = `${formatNumber(maxBy(rows, "wins").wins)} season high`;
+      els.rankingChartValue.textContent = `Best #${minBy(rows, "moneyRank").moneyRank}`;
+
+      drawBarChart(els.earningsChart, earningsPoints, { color: "#187349", formatY: compactMoney });
+      drawBarChart(els.winsChart, winsPoints, { color: "#c88b20", formatY: (value) => String(value) });
+      drawLineChart(els.rankingChart, rankingPoints, { color: "#2467b2", inverse: true, formatY: (value) => `#${Math.round(value)}` });
+    }
+
+    function drawBarChart(svg, points, options) {
+      const width = 520;
+      const height = 238;
+      const pad = { top: 16, right: 16, bottom: 34, left: 48 };
+      const chartW = width - pad.left - pad.right;
+      const chartH = height - pad.top - pad.bottom;
+      const maxY = Math.max(...points.map((p) => p.y), 1);
+      const barGap = Math.max(2, Math.min(10, chartW / points.length * 0.26));
+      const barW = Math.max(5, (chartW - barGap * (points.length - 1)) / points.length);
+
+      svg.innerHTML = "";
+      addGrid(svg, width, height, pad, 4, maxY, options.formatY);
+      points.forEach((point, index) => {
+        const x = pad.left + index * (barW + barGap);
+        const barH = (point.y / maxY) * chartH;
+        const y = pad.top + chartH - barH;
+        svg.appendChild(svgEl("rect", {
+          x, y, width: barW, height: Math.max(1, barH),
+          rx: 3, fill: options.color,
+          opacity: index === points.length - 1 ? 1 : 0.72
+        }));
+      });
+      addXAxis(svg, points, width, height, pad);
+    }
+
+    function drawLineChart(svg, points, options) {
+      const width = 520;
+      const height = 238;
+      const pad = { top: 16, right: 18, bottom: 34, left: 48 };
+      const chartW = width - pad.left - pad.right;
+      const chartH = height - pad.top - pad.bottom;
+      const ys = points.map((p) => p.y);
+      const minY = Math.min(...ys);
+      const maxY = Math.max(...ys);
+      const spread = Math.max(1, maxY - minY);
+
+      const coords = points.map((point, index) => {
+        const x = pad.left + (points.length === 1 ? chartW / 2 : index * (chartW / (points.length - 1)));
+        const scaled = (point.y - minY) / spread;
+        const y = options.inverse
+          ? pad.top + scaled * chartH
+          : pad.top + chartH - scaled * chartH;
+        return { x, y, point };
+      });
+
+      svg.innerHTML = "";
+      addGrid(svg, width, height, pad, 4, maxY, options.formatY, minY, options.inverse);
+      svg.appendChild(svgEl("polyline", {
+        points: coords.map((coord) => `${coord.x},${coord.y}`).join(" "),
+        class: "chart-line",
+        stroke: options.color
+      }));
+      coords.forEach((coord, index) => {
+        svg.appendChild(svgEl("circle", {
+          cx: coord.x,
+          cy: coord.y,
+          r: index === coords.length - 1 ? 5 : 4,
+          fill: options.color,
+          class: "chart-dot"
+        }));
+      });
+      addXAxis(svg, points, width, height, pad);
+    }
+
+    function addGrid(svg, width, height, pad, ticks, maxY, formatY, minY = 0, inverse = false) {
+      const chartH = height - pad.top - pad.bottom;
+      const chartW = width - pad.left - pad.right;
+      const range = Math.max(1, maxY - minY);
+      for (let index = 0; index <= ticks; index += 1) {
+        const y = pad.top + (chartH / ticks) * index;
+        const value = inverse
+          ? minY + (range / ticks) * index
+          : maxY - (range / ticks) * index;
+        svg.appendChild(svgEl("line", {
+          x1: pad.left, x2: pad.left + chartW, y1: y, y2: y, class: "grid-line"
+        }));
+        svg.appendChild(svgText(pad.left - 8, y + 4, formatY(value), "end"));
+      }
+    }
+
+    function addXAxis(svg, points, width, height, pad) {
+      if (!points.length) return;
+      const chartW = width - pad.left - pad.right;
+      const indexes = uniqueIndexes([0, Math.floor((points.length - 1) / 2), points.length - 1]);
+      indexes.forEach((index) => {
+        const x = pad.left + (points.length === 1 ? chartW / 2 : index * (chartW / (points.length - 1)));
+        svg.appendChild(svgText(x, height - 10, String(points[index].x), "middle"));
+      });
+    }
+
+    function uniqueIndexes(indexes) {
+      return [...new Set(indexes)].filter((index) => index >= 0);
+    }
+
+    function svgEl(name, attrs) {
+      const el = document.createElementNS("http://www.w3.org/2000/svg", name);
+      Object.entries(attrs).forEach(([key, value]) => el.setAttribute(key, value));
+      return el;
+    }
+
+    function svgText(x, y, text, anchor) {
+      const el = svgEl("text", { x, y, "text-anchor": anchor, class: "axis-text" });
+      el.textContent = text;
+      return el;
+    }
+
+    function snapshot(label, value) {
+      return `<div class="snapshot-item">
+        <div class="snapshot-label">${escapeHtml(label)}</div>
+        <div class="snapshot-value">${escapeHtml(String(value))}</div>
+      </div>`;
+    }
+
+    function statCard(label, value, note) {
+      return `<article class="stat-card">
+        <div>
+          <div class="stat-label">${escapeHtml(label)}</div>
+          <div class="stat-value">${escapeHtml(String(value))}</div>
+        </div>
+        <div class="stat-note">${escapeHtml(note)}</div>
+      </article>`;
+    }
+
+    function initials(name) {
+      return name.split(/\s+/).filter(Boolean).slice(0, 2).map((part) => part[0]).join("").toUpperCase();
+    }
+
+    function maxBy(rows, key) {
+      return rows.reduce((best, row) => row[key] > best[key] ? row : best, rows[0]);
+    }
+
+    function minBy(rows, key) {
+      return rows.reduce((best, row) => row[key] < best[key] ? row : best, rows[0]);
+    }
+
+    function formatCurrency(value) {
+      if (!value) return "$0";
+      return new Intl.NumberFormat("en-US", {
+        style: "currency",
+        currency: "USD",
+        maximumFractionDigits: 0
+      }).format(value);
+    }
+
+    function compactMoney(value) {
+      if (value >= 1000000) return `$${(value / 1000000).toFixed(value >= 10000000 ? 0 : 1)}M`;
+      if (value >= 1000) return `$${Math.round(value / 1000)}K`;
+      return `$${Math.round(value)}`;
+    }
+
+    function formatNumber(value) {
+      return new Intl.NumberFormat("en-US", { maximumFractionDigits: 0 }).format(value || 0);
+    }
+
+    function formatDate(value) {
+      if (!value) return "unknown";
+      const date = new Date(`${value}T00:00:00`);
+      return Number.isNaN(date.getTime())
+        ? value
+        : date.toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" });
+    }
+
+    function cleanSg(value) {
+      return Number.isFinite(value) && Math.abs(value) < 10 ? value : 0;
+    }
+
+    function escapeHtml(value) {
+      return String(value)
+        .replaceAll("&", "&amp;")
+        .replaceAll("<", "&lt;")
+        .replaceAll(">", "&gt;")
+        .replaceAll('"', "&quot;")
+        .replaceAll("'", "&#039;");
+    }
+  </script>
+</body>
+</html>
