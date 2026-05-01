@@ -1,0 +1,326 @@
+{
+  "as_of_date": "2026-05-01",
+  "tour": "PGA Tour",
+  "season": 2026,
+  "notes": [
+    "Events are calendar stops, not confirmed player commitments. Tournament fields and eligibility can change week to week.",
+    "The dashboard treats golfers with a 2026 row in the local stats data as active for this schedule panel."
+  ],
+  "sources": [
+    {
+      "name": "Sky Sports PGA Tour 2026 schedule",
+      "url": "https://www.skysports.com/golf/news/12176/13415204/pga-tour-2026-schedule-dates-venues-events-for-the-new-fedexcup-season-signature-events-and-golf-majors"
+    },
+    {
+      "name": "PGA TOUR 2026 FedExCup Fall schedule",
+      "url": "https://www.pgatour.com/article/news/latest/2026/01/09/pga-tour-unveils-2026-fedexcup-fall-schedule-two-new-events-asheville-austin"
+    },
+    {
+      "name": "Grant Thornton Invitational tournament info",
+      "url": "https://grantthorntoninvitational.com/tournament-info/"
+    },
+    {
+      "name": "PNC Championship PGA TOUR overview",
+      "url": "https://www.pgatour.com/pgatour-champions/tournaments/2026/pnc-championship/S2026600/overview"
+    }
+  ],
+  "events": [
+    {
+      "name": "Cadillac Championship",
+      "start_date": "2026-04-30",
+      "end_date": "2026-05-03",
+      "course": "Trump National Doral (Blue Monster)",
+      "location": "Miami, FL",
+      "category": "Signature event",
+      "status_as_of_date": "in_progress"
+    },
+    {
+      "name": "Truist Championship",
+      "start_date": "2026-05-07",
+      "end_date": "2026-05-10",
+      "course": "Quail Hollow Club",
+      "location": "Charlotte, NC",
+      "category": "Signature event",
+      "status_as_of_date": "upcoming"
+    },
+    {
+      "name": "ONEflight Myrtle Beach Classic",
+      "start_date": "2026-05-07",
+      "end_date": "2026-05-10",
+      "course": "Dunes Golf and Beach Club",
+      "location": "Myrtle Beach, SC",
+      "category": "Additional event",
+      "status_as_of_date": "upcoming"
+    },
+    {
+      "name": "PGA Championship",
+      "start_date": "2026-05-14",
+      "end_date": "2026-05-17",
+      "course": "Aronimink Golf Club",
+      "location": "Newtown Square, PA",
+      "category": "Major championship",
+      "status_as_of_date": "upcoming"
+    },
+    {
+      "name": "THE CJ CUP Byron Nelson",
+      "start_date": "2026-05-21",
+      "end_date": "2026-05-24",
+      "course": "TPC Craig Ranch",
+      "location": "McKinney, TX",
+      "category": "Regular season",
+      "status_as_of_date": "upcoming"
+    },
+    {
+      "name": "Charles Schwab Challenge",
+      "start_date": "2026-05-28",
+      "end_date": "2026-05-31",
+      "course": "Colonial Country Club",
+      "location": "Fort Worth, TX",
+      "category": "Regular season",
+      "status_as_of_date": "upcoming"
+    },
+    {
+      "name": "the Memorial Tournament presented by Workday",
+      "start_date": "2026-06-04",
+      "end_date": "2026-06-07",
+      "course": "Muirfield Village Golf Club",
+      "location": "Dublin, OH",
+      "category": "Signature event",
+      "status_as_of_date": "upcoming"
+    },
+    {
+      "name": "RBC Canadian Open",
+      "start_date": "2026-06-11",
+      "end_date": "2026-06-14",
+      "course": "TPC Toronto at Osprey Valley (North Course)",
+      "location": "Caledon, Ontario, Canada",
+      "category": "Regular season",
+      "status_as_of_date": "upcoming"
+    },
+    {
+      "name": "U.S. Open",
+      "start_date": "2026-06-18",
+      "end_date": "2026-06-21",
+      "course": "Shinnecock Hills Golf Club",
+      "location": "Southampton, NY",
+      "category": "Major championship",
+      "status_as_of_date": "upcoming"
+    },
+    {
+      "name": "Travelers Championship",
+      "start_date": "2026-06-25",
+      "end_date": "2026-06-28",
+      "course": "TPC River Highlands",
+      "location": "Cromwell, CT",
+      "category": "Signature event",
+      "status_as_of_date": "upcoming"
+    },
+    {
+      "name": "John Deere Classic",
+      "start_date": "2026-07-02",
+      "end_date": "2026-07-05",
+      "course": "TPC Deere Run",
+      "location": "Silvis, IL",
+      "category": "Regular season",
+      "status_as_of_date": "upcoming"
+    },
+    {
+      "name": "Genesis Scottish Open",
+      "start_date": "2026-07-09",
+      "end_date": "2026-07-12",
+      "course": "The Renaissance Club",
+      "location": "North Berwick, Scotland",
+      "category": "Co-sanctioned",
+      "status_as_of_date": "upcoming"
+    },
+    {
+      "name": "ISCO Championship",
+      "start_date": "2026-07-09",
+      "end_date": "2026-07-12",
+      "course": "Hurstbourne Country Club",
+      "location": "Louisville, KY",
+      "category": "Additional event",
+      "status_as_of_date": "upcoming"
+    },
+    {
+      "name": "The Open Championship",
+      "start_date": "2026-07-16",
+      "end_date": "2026-07-19",
+      "course": "Royal Birkdale",
+      "location": "Southport, England",
+      "category": "Major championship",
+      "status_as_of_date": "upcoming"
+    },
+    {
+      "name": "Corales Puntacana Championship",
+      "start_date": "2026-07-16",
+      "end_date": "2026-07-19",
+      "course": "Puntacana Resort & Club (Corales Golf Course)",
+      "location": "Punta Cana, Dominican Republic",
+      "category": "Additional event",
+      "status_as_of_date": "upcoming"
+    },
+    {
+      "name": "3M Open",
+      "start_date": "2026-07-23",
+      "end_date": "2026-07-26",
+      "course": "TPC Twin Cities",
+      "location": "Blaine, MN",
+      "category": "Regular season",
+      "status_as_of_date": "upcoming"
+    },
+    {
+      "name": "Rocket Classic",
+      "start_date": "2026-07-30",
+      "end_date": "2026-08-02",
+      "course": "Detroit Golf Club",
+      "location": "Detroit, MI",
+      "category": "Regular season",
+      "status_as_of_date": "upcoming"
+    },
+    {
+      "name": "Wyndham Championship",
+      "start_date": "2026-08-06",
+      "end_date": "2026-08-09",
+      "course": "Sedgefield Country Club",
+      "location": "Greensboro, NC",
+      "category": "Regular season",
+      "status_as_of_date": "upcoming"
+    },
+    {
+      "name": "FedEx St. Jude Championship",
+      "start_date": "2026-08-13",
+      "end_date": "2026-08-16",
+      "course": "TPC Southwind",
+      "location": "Memphis, TN",
+      "category": "FedExCup Playoffs",
+      "status_as_of_date": "upcoming"
+    },
+    {
+      "name": "BMW Championship",
+      "start_date": "2026-08-20",
+      "end_date": "2026-08-23",
+      "course": "Bellerive Country Club",
+      "location": "St. Louis, MO",
+      "category": "FedExCup Playoffs",
+      "status_as_of_date": "upcoming"
+    },
+    {
+      "name": "TOUR Championship",
+      "start_date": "2026-08-27",
+      "end_date": "2026-08-30",
+      "course": "East Lake Golf Club",
+      "location": "Atlanta, GA",
+      "category": "FedExCup Playoffs",
+      "status_as_of_date": "upcoming"
+    },
+    {
+      "name": "Biltmore Championship Asheville",
+      "start_date": "2026-09-17",
+      "end_date": "2026-09-20",
+      "course": "The Cliffs at Walnut Cove",
+      "location": "Asheville, NC",
+      "category": "FedExCup Fall",
+      "status_as_of_date": "upcoming"
+    },
+    {
+      "name": "Presidents Cup",
+      "start_date": "2026-09-21",
+      "end_date": "2026-09-27",
+      "course": "Medinah Country Club",
+      "location": "Medinah, IL",
+      "category": "Team event",
+      "status_as_of_date": "upcoming"
+    },
+    {
+      "name": "Bank of Utah Championship",
+      "start_date": "2026-10-01",
+      "end_date": "2026-10-04",
+      "course": "Black Desert Resort Golf Course",
+      "location": "Ivins, UT",
+      "category": "FedExCup Fall",
+      "status_as_of_date": "upcoming"
+    },
+    {
+      "name": "Baycurrent Classic",
+      "start_date": "2026-10-08",
+      "end_date": "2026-10-11",
+      "course": "Yokohama Country Club",
+      "location": "Yokohama, Japan",
+      "category": "FedExCup Fall",
+      "status_as_of_date": "upcoming"
+    },
+    {
+      "name": "Butterfield Bermuda Championship",
+      "start_date": "2026-10-22",
+      "end_date": "2026-10-25",
+      "course": "Port Royal Golf Course",
+      "location": "Southampton, Bermuda",
+      "category": "FedExCup Fall",
+      "status_as_of_date": "upcoming"
+    },
+    {
+      "name": "VidantaWorld Mexico Open",
+      "start_date": "2026-10-29",
+      "end_date": "2026-11-01",
+      "course": "Vidanta Vallarta Golf Course",
+      "location": "Vallarta, Mexico",
+      "category": "FedExCup Fall",
+      "status_as_of_date": "upcoming"
+    },
+    {
+      "name": "World Wide Technology Championship",
+      "start_date": "2026-11-05",
+      "end_date": "2026-11-08",
+      "course": "El Cardonal at Diamante",
+      "location": "Los Cabos, Mexico",
+      "category": "FedExCup Fall",
+      "status_as_of_date": "upcoming"
+    },
+    {
+      "name": "Good Good Championship",
+      "start_date": "2026-11-12",
+      "end_date": "2026-11-15",
+      "course": "Omni Barton Creek Resort & Spa (Fazio Canyons Course)",
+      "location": "Austin, TX",
+      "category": "FedExCup Fall",
+      "status_as_of_date": "upcoming"
+    },
+    {
+      "name": "The RSM Classic",
+      "start_date": "2026-11-19",
+      "end_date": "2026-11-22",
+      "course": "Sea Island Golf Club",
+      "location": "St. Simons Island, GA",
+      "category": "FedExCup Fall",
+      "status_as_of_date": "upcoming"
+    },
+    {
+      "name": "Hero World Challenge",
+      "start_date": "2026-12-03",
+      "end_date": "2026-12-06",
+      "course": "Albany Golf Club",
+      "location": "Albany, Bahamas",
+      "category": "Unofficial event",
+      "status_as_of_date": "upcoming"
+    },
+    {
+      "name": "Grant Thornton Invitational",
+      "start_date": "2026-12-07",
+      "end_date": "2026-12-13",
+      "course": "Tiburon Golf Club",
+      "location": "Naples, FL",
+      "category": "Mixed-team invitational",
+      "status_as_of_date": "upcoming"
+    },
+    {
+      "name": "PNC Championship",
+      "start_date": "2026-12-14",
+      "end_date": "2026-12-20",
+      "course": "Ritz-Carlton Golf Club",
+      "location": "Orlando, FL",
+      "category": "Family-team event",
+      "status_as_of_date": "upcoming"
+    }
+  ]
+}
