@@ -936,11 +936,27 @@
     }
 
     .table-wrap {
-      overflow-x: auto;
+      max-height: 470px;
+      overflow: auto;
       border: 1px solid #d6e2dc;
       border-radius: 8px;
       background: #fff;
       box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.85);
+    }
+
+    .table-wrap::-webkit-scrollbar {
+      width: 10px;
+      height: 10px;
+    }
+
+    .table-wrap::-webkit-scrollbar-thumb {
+      background: #bdd2c6;
+      border-radius: 999px;
+      border: 2px solid #f6fbf7;
+    }
+
+    .table-wrap::-webkit-scrollbar-track {
+      background: #f6fbf7;
     }
 
     table {
@@ -962,6 +978,9 @@
     td:first-child { text-align: left; }
 
     th {
+      position: sticky;
+      top: 0;
+      z-index: 1;
       background:
         linear-gradient(180deg, #f4faf6, #edf5f0);
       color: #315244;
@@ -1236,7 +1255,7 @@
     <section class="content-grid">
       <div class="section">
         <div class="section-header">
-          <h3>Recent Results</h3>
+          <h3>All Tracked Seasons</h3>
           <div class="section-subtitle" id="recentSubtitle"></div>
         </div>
         <div class="table-wrap">
@@ -1537,7 +1556,7 @@
 
     function init() {
       els.seasonPill.textContent = RUN_DATE ? `Data date ${formatDate(RUN_DATE)}` : "Local PGA data";
-      els.sourceNote.textContent = `Local PGA Tour stats file generated ${formatDate(RUN_DATE)}. Career earnings and wins reflect top-50 Official Money seasons in this dataset; 2026 coverage is ${COVERAGE_NOTE}. Major wins use a curated embedded lookup for common major winners. Upcoming tournament data is stored in upcoming_tournaments_2026.json and is current as of ${formatDate(UPCOMING_AS_OF_DATE)}. Course rhythm graphics are custom scouting previews, not official course maps.`;
+      els.sourceNote.textContent = `Local PGA Tour stats file generated ${formatDate(RUN_DATE)} from PGA TOUR Stats archive coverage. Career earnings, wins, and season rows reflect top-50 Official Money seasons in this dataset, not every professional golfer worldwide; 2026 coverage is ${COVERAGE_NOTE}. Current web checks also reviewed PGA TOUR Stats and ESPN stat leader pages for available golfer-stat coverage. Major wins use a curated embedded lookup for common major winners. Upcoming tournament data is stored in upcoming_tournaments_2026.json and is current as of ${formatDate(UPCOMING_AS_OF_DATE)}. Course rhythm graphics are custom scouting previews, not official course maps.`;
       renderQuickPicks();
       bindEvents();
       selectPlayer(currentPlayer.name);
@@ -1870,9 +1889,9 @@
     }
 
     function renderRecentTable(rows) {
-      const recent = rows.slice().sort((a, b) => b.year - a.year).slice(0, 8);
-      els.recentSubtitle.textContent = `${recent.length} latest tracked seasons`;
-      els.recentRows.innerHTML = recent.map((row) => `<tr>
+      const allSeasons = rows.slice().sort((a, b) => b.year - a.year);
+      els.recentSubtitle.textContent = `${allSeasons.length} tracked seasons · scroll table`;
+      els.recentRows.innerHTML = allSeasons.map((row) => `<tr>
         <td>${row.year}</td>
         <td><span class="rank-pill">#${row.moneyRank}</span></td>
         <td>${formatCurrency(row.money)}</td>
