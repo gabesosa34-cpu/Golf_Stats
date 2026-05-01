@@ -553,6 +553,8 @@
 
     .tournament-card {
       position: relative;
+      display: block;
+      width: 100%;
       min-width: 0;
       border: 1px solid #d6e5dc;
       border-radius: 8px;
@@ -561,6 +563,18 @@
       padding: 13px;
       overflow: hidden;
       box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.9);
+      color: inherit;
+      cursor: pointer;
+      text-align: left;
+      transition: transform 160ms ease, box-shadow 160ms ease, border-color 160ms ease;
+    }
+
+    .tournament-card:hover,
+    .tournament-card:focus-visible {
+      border-color: #a9cabc;
+      box-shadow: 0 14px 28px rgba(8, 23, 19, 0.1);
+      transform: translateY(-2px);
+      outline: none;
     }
 
     .tournament-card::before {
@@ -613,6 +627,291 @@
       color: var(--muted);
       font-size: 0.78rem;
       line-height: 1.4;
+    }
+
+    .modal-backdrop {
+      position: fixed;
+      inset: 0;
+      z-index: 200;
+      display: grid;
+      place-items: center;
+      padding: 22px;
+      background: rgba(4, 18, 14, 0.68);
+      backdrop-filter: blur(5px);
+    }
+
+    .modal-backdrop[hidden] {
+      display: none;
+    }
+
+    .modal-dialog {
+      width: min(1020px, 100%);
+      min-width: 0;
+      max-height: min(820px, calc(100vh - 44px));
+      overflow: auto;
+      border: 1px solid rgba(218, 232, 224, 0.9);
+      border-radius: 8px;
+      background:
+        linear-gradient(180deg, #ffffff, #f6faf7);
+      box-shadow: 0 28px 80px rgba(0, 0, 0, 0.34);
+    }
+
+    .modal-top {
+      position: sticky;
+      top: 0;
+      z-index: 2;
+      display: flex;
+      justify-content: space-between;
+      gap: 16px;
+      align-items: flex-start;
+      padding: 18px 20px;
+      border-bottom: 1px solid #dbe8e1;
+      background:
+        linear-gradient(135deg, #08291d, #0f603d);
+      color: #fff;
+    }
+
+    .modal-eyebrow {
+      color: #cde6d6;
+      font-size: 0.76rem;
+      font-weight: 900;
+      text-transform: uppercase;
+      letter-spacing: 0;
+    }
+
+    .modal-title {
+      margin: 5px 0 0;
+      font-size: clamp(1.35rem, 3vw, 2.15rem);
+      line-height: 1;
+      font-weight: 950;
+    }
+
+    .modal-close {
+      flex: 0 0 auto;
+      width: 40px;
+      height: 40px;
+      border: 1px solid rgba(255, 255, 255, 0.28);
+      border-radius: 8px;
+      background: rgba(255, 255, 255, 0.1);
+      color: #fff;
+      cursor: pointer;
+      font-size: 1.3rem;
+      line-height: 1;
+    }
+
+    .modal-close:hover,
+    .modal-close:focus-visible {
+      background: rgba(255, 255, 255, 0.18);
+      outline: none;
+    }
+
+    .modal-body {
+      min-width: 0;
+      padding: 20px;
+      display: grid;
+      gap: 16px;
+    }
+
+    .detail-grid {
+      min-width: 0;
+      display: grid;
+      grid-template-columns: minmax(0, 0.9fr) minmax(0, 1.1fr);
+      gap: 16px;
+      align-items: start;
+    }
+
+    .detail-panel {
+      min-width: 0;
+      border: 1px solid #d6e5dc;
+      border-radius: 8px;
+      background: #fff;
+      padding: 16px;
+    }
+
+    .detail-panel h4 {
+      margin: 0 0 12px;
+      color: #25483a;
+      font-size: 0.82rem;
+      font-weight: 950;
+      text-transform: uppercase;
+      letter-spacing: 0;
+    }
+
+    .detail-list {
+      display: grid;
+      gap: 10px;
+      margin: 0;
+    }
+
+    .detail-row {
+      display: grid;
+      grid-template-columns: 112px minmax(0, 1fr);
+      gap: 10px;
+      align-items: baseline;
+      padding-bottom: 9px;
+      border-bottom: 1px solid #edf4ef;
+    }
+
+    .detail-row:last-child {
+      border-bottom: 0;
+      padding-bottom: 0;
+    }
+
+    .detail-label {
+      color: var(--muted);
+      font-size: 0.72rem;
+      font-weight: 900;
+      text-transform: uppercase;
+    }
+
+    .detail-value {
+      margin: 0;
+      color: #10251d;
+      font-weight: 850;
+      line-height: 1.35;
+      overflow-wrap: anywhere;
+    }
+
+    .course-profile-head {
+      min-width: 0;
+      display: flex;
+      justify-content: space-between;
+      gap: 12px;
+      align-items: start;
+      margin-bottom: 12px;
+    }
+
+    .course-profile-title {
+      margin: 0;
+      color: #10251d;
+      font-size: 1.08rem;
+      font-weight: 950;
+    }
+
+    .course-profile-subtitle {
+      margin-top: 3px;
+      color: var(--muted);
+      font-size: 0.82rem;
+      line-height: 1.35;
+      overflow-wrap: anywhere;
+    }
+
+    .profile-badge {
+      flex: 0 0 auto;
+      border-radius: 999px;
+      border: 1px solid #cfe0d6;
+      background: #f2f8f4;
+      color: #244436;
+      padding: 5px 9px;
+      font-size: 0.74rem;
+      font-weight: 900;
+      white-space: nowrap;
+    }
+
+    .hole-strip {
+      min-width: 0;
+      display: grid;
+      grid-template-columns: repeat(18, minmax(20px, 1fr));
+      gap: 5px;
+      align-items: end;
+      min-height: 132px;
+      padding: 14px 10px 10px;
+      border: 1px solid #dbe8e1;
+      border-radius: 8px;
+      background:
+        linear-gradient(180deg, #fbfdfb, #f1f7f3);
+      overflow-x: auto;
+    }
+
+    .hole {
+      min-width: 24px;
+      display: grid;
+      gap: 5px;
+      justify-items: center;
+      align-content: end;
+    }
+
+    .hole-bar {
+      width: 100%;
+      max-width: 34px;
+      border-radius: 999px 999px 3px 3px;
+      background: var(--green);
+      box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.28);
+    }
+
+    .hole.is-par3 .hole-bar { height: 38px; background: #2b77a7; }
+    .hole.is-par4 .hole-bar { height: 62px; background: #0c6f43; }
+    .hole.is-par5 .hole-bar { height: 88px; background: #b8842c; }
+
+    .hole-number {
+      color: #567064;
+      font-size: 0.62rem;
+      font-weight: 850;
+    }
+
+    .hole-par {
+      color: #10251d;
+      font-size: 0.66rem;
+      font-weight: 950;
+    }
+
+    .profile-legend {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-top: 10px;
+      color: var(--muted);
+      font-size: 0.78rem;
+      line-height: 1.35;
+    }
+
+    .legend-item {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+    }
+
+    .legend-swatch {
+      width: 10px;
+      height: 10px;
+      border-radius: 2px;
+      background: var(--green);
+    }
+
+    .legend-swatch.par3 { background: #2b77a7; }
+    .legend-swatch.par5 { background: #b8842c; }
+
+    .demand-list {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 10px;
+    }
+
+    .demand-item {
+      border: 1px solid #dbe8e1;
+      border-radius: 8px;
+      background: #f8fbf8;
+      padding: 11px;
+    }
+
+    .demand-label {
+      color: var(--muted);
+      font-size: 0.72rem;
+      font-weight: 900;
+      text-transform: uppercase;
+    }
+
+    .demand-value {
+      margin-top: 5px;
+      color: #10251d;
+      font-weight: 950;
+      line-height: 1.25;
+    }
+
+    .modal-note {
+      color: var(--muted);
+      font-size: 0.8rem;
+      line-height: 1.45;
     }
 
     .section {
@@ -840,7 +1139,8 @@
       .brand-row,
       .search-row,
       .player-hero,
-      .content-grid {
+      .content-grid,
+      .detail-grid {
         grid-template-columns: 1fr;
       }
 
@@ -851,6 +1151,7 @@
       .context-panel { min-height: auto; }
       .cards { grid-template-columns: repeat(2, minmax(0, 1fr)); }
       .upcoming-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+      .demand-list { grid-template-columns: 1fr; }
       .section-header { align-items: flex-start; flex-direction: column; }
       .section-subtitle { white-space: normal; }
     }
@@ -873,6 +1174,13 @@
       .player-main h2 { font-size: 2rem; line-height: 1.02; }
       .stat-card { min-height: 116px; }
       .chart { height: 210px; }
+      .modal-backdrop { padding: 10px; }
+      .modal-dialog { max-height: calc(100vh - 20px); }
+      .modal-top,
+      .modal-body { padding: 14px; }
+      .detail-row { grid-template-columns: 1fr; gap: 3px; }
+      .course-profile-head { flex-direction: column; }
+      .hole-strip { grid-template-columns: repeat(18, minmax(22px, 1fr)); }
     }
   </style>
 </head>
@@ -984,6 +1292,46 @@
 
     <p class="source-note" id="sourceNote"></p>
   </main>
+
+  <div class="modal-backdrop" id="tournamentModal" hidden>
+    <div class="modal-dialog" role="dialog" aria-modal="true" aria-labelledby="tournamentModalTitle">
+      <div class="modal-top">
+        <div>
+          <div class="modal-eyebrow" id="tournamentModalEyebrow"></div>
+          <h3 class="modal-title" id="tournamentModalTitle"></h3>
+        </div>
+        <button class="modal-close" id="tournamentModalClose" type="button" aria-label="Close tournament details">×</button>
+      </div>
+      <div class="modal-body">
+        <div class="detail-grid">
+          <section class="detail-panel">
+            <h4>Event Details</h4>
+            <dl class="detail-list" id="tournamentDetailList"></dl>
+          </section>
+          <section class="detail-panel">
+            <div class="course-profile-head">
+              <div>
+                <h4 class="course-profile-title">Course Profile</h4>
+                <div class="course-profile-subtitle" id="courseProfileSubtitle"></div>
+              </div>
+              <span class="profile-badge" id="courseProfileBadge"></span>
+            </div>
+            <div class="hole-strip" id="holeStrip" aria-label="Custom 18-hole course rhythm"></div>
+            <div class="profile-legend">
+              <span class="legend-item"><span class="legend-swatch par3"></span>Par 3 pressure</span>
+              <span class="legend-item"><span class="legend-swatch"></span>Par 4 scoring</span>
+              <span class="legend-item"><span class="legend-swatch par5"></span>Par 5 chances</span>
+            </div>
+          </section>
+        </div>
+        <section class="detail-panel">
+          <h4>Scouting Notes</h4>
+          <div class="demand-list" id="courseDemands"></div>
+        </section>
+        <div class="modal-note" id="tournamentModalNote"></div>
+      </div>
+    </div>
+  </div>
 
   <script>
     const FIELD_NAMES = ["year","moneyRank","playerId","player","country","money","wins","top10","owgrPoints","fedexPoints","scoringAvg","sgTotal","coverage"];
@@ -1117,6 +1465,16 @@
       winsChartValue: document.getElementById("winsChartValue"),
       rankingChartValue: document.getElementById("rankingChartValue"),
       sourceNote: document.getElementById("sourceNote"),
+      tournamentModal: document.getElementById("tournamentModal"),
+      tournamentModalClose: document.getElementById("tournamentModalClose"),
+      tournamentModalEyebrow: document.getElementById("tournamentModalEyebrow"),
+      tournamentModalTitle: document.getElementById("tournamentModalTitle"),
+      tournamentDetailList: document.getElementById("tournamentDetailList"),
+      courseProfileSubtitle: document.getElementById("courseProfileSubtitle"),
+      courseProfileBadge: document.getElementById("courseProfileBadge"),
+      holeStrip: document.getElementById("holeStrip"),
+      courseDemands: document.getElementById("courseDemands"),
+      tournamentModalNote: document.getElementById("tournamentModalNote"),
     };
 
     const seasons = SEASON_ROWS.map(toRow).sort((a, b) => a.year - b.year || a.moneyRank - b.moneyRank);
@@ -1125,6 +1483,7 @@
     const playerList = Object.values(players).sort((a, b) => b.latest.year - a.latest.year || a.latest.moneyRank - b.latest.moneyRank || a.name.localeCompare(b.name));
     const worldRanks = buildWorldRankLookup(seasons);
     let currentPlayer = playerList.find((p) => p.name === "Scottie Scheffler") || playerList[0];
+    let activeUpcomingEvents = [];
     let activeSuggestionIndex = -1;
 
     init();
@@ -1178,7 +1537,7 @@
 
     function init() {
       els.seasonPill.textContent = RUN_DATE ? `Data date ${formatDate(RUN_DATE)}` : "Local PGA data";
-      els.sourceNote.textContent = `Local PGA Tour stats file generated ${formatDate(RUN_DATE)}. Career earnings and wins reflect top-50 Official Money seasons in this dataset; 2026 coverage is ${COVERAGE_NOTE}. Major wins use a curated embedded lookup for common major winners. Upcoming tournament data is stored in upcoming_tournaments_2026.json and is current as of ${formatDate(UPCOMING_AS_OF_DATE)}.`;
+      els.sourceNote.textContent = `Local PGA Tour stats file generated ${formatDate(RUN_DATE)}. Career earnings and wins reflect top-50 Official Money seasons in this dataset; 2026 coverage is ${COVERAGE_NOTE}. Major wins use a curated embedded lookup for common major winners. Upcoming tournament data is stored in upcoming_tournaments_2026.json and is current as of ${formatDate(UPCOMING_AS_OF_DATE)}. Course rhythm graphics are custom scouting previews, not official course maps.`;
       renderQuickPicks();
       bindEvents();
       selectPlayer(currentPlayer.name);
@@ -1223,6 +1582,16 @@
 
       document.addEventListener("click", (event) => {
         if (!event.target.closest(".search-wrap")) closeSuggestions();
+      });
+
+      els.tournamentModalClose.addEventListener("click", closeTournamentModal);
+      els.tournamentModal.addEventListener("click", (event) => {
+        if (event.target === els.tournamentModal) closeTournamentModal();
+      });
+      document.addEventListener("keydown", (event) => {
+        if (event.key === "Escape" && !els.tournamentModal.hidden) {
+          closeTournamentModal();
+        }
       });
     }
 
@@ -1327,16 +1696,18 @@
 
     function renderUpcomingTournaments(player, row2026) {
       if (!row2026) {
+        activeUpcomingEvents = [];
         els.upcomingSubtitle.textContent = "No 2026 active row";
         els.upcomingGrid.innerHTML = `<div class="empty-state">No upcoming schedule is shown for ${escapeHtml(player.name)} because this dashboard does not have a 2026 top-50 row for that golfer.</div>`;
         els.upcomingNote.textContent = "The schedule panel is only shown as a current-year calendar guide for golfers still active in the 2026 local stats data.";
         return;
       }
 
-      const nextEvents = getNextTournaments(5);
-      els.upcomingSubtitle.textContent = `${nextEvents.length} calendar stops from ${formatDate(UPCOMING_AS_OF_DATE)}`;
-      els.upcomingGrid.innerHTML = nextEvents.map(tournamentCard).join("");
-      els.upcomingNote.textContent = "Calendar stops only. Tournament fields and eligibility can change week to week, so this does not confirm the golfer is entered.";
+      activeUpcomingEvents = getNextTournaments(5);
+      els.upcomingSubtitle.textContent = `${activeUpcomingEvents.length} calendar stops from ${formatDate(UPCOMING_AS_OF_DATE)}`;
+      els.upcomingGrid.innerHTML = activeUpcomingEvents.map(tournamentCard).join("");
+      bindTournamentCards();
+      els.upcomingNote.textContent = "Click a tournament for a scouting profile. Calendar stops only; tournament fields and eligibility can change week to week.";
     }
 
     function getNextTournaments(limit = 5) {
@@ -1347,13 +1718,155 @@
         .slice(0, limit);
     }
 
-    function tournamentCard(event) {
-      return `<article class="tournament-card">
+    function tournamentCard(event, index) {
+      const profile = buildCourseProfile(event);
+      return `<button type="button" class="tournament-card" data-event-index="${index}">
         <div class="tournament-date">${escapeHtml(formatTournamentDateRange(event.startDate, event.endDate))}</div>
         <div class="tournament-name">${escapeHtml(event.name)}</div>
         <div class="tournament-meta">${escapeHtml(event.course)}<br>${escapeHtml(event.location)}</div>
-        <span class="tournament-tag">${escapeHtml(event.category)}</span>
-      </article>`;
+        <span class="tournament-tag">${escapeHtml(profile.style)}</span>
+      </button>`;
+    }
+
+    function bindTournamentCards() {
+      els.upcomingGrid.querySelectorAll(".tournament-card").forEach((button) => {
+        button.addEventListener("click", () => {
+          const event = activeUpcomingEvents[Number(button.dataset.eventIndex)];
+          if (event) openTournamentModal(event);
+        });
+      });
+    }
+
+    function openTournamentModal(event) {
+      const profile = buildCourseProfile(event);
+      const row2026 = currentPlayer.rows.find((row) => row.year === 2026);
+
+      els.tournamentModalEyebrow.textContent = `${formatTournamentDateRange(event.startDate, event.endDate)} · ${event.category}`;
+      els.tournamentModalTitle.textContent = event.name;
+      els.tournamentDetailList.innerHTML = [
+        detailRow("Course", event.course),
+        detailRow("Location", event.location),
+        detailRow("Dates", formatTournamentDateRange(event.startDate, event.endDate)),
+        detailRow("Category", event.category),
+        detailRow("Player Lens", row2026
+          ? `${currentPlayer.name}: #${row2026.moneyRank} money rank, ${formatNumber(row2026.fedexPoints)} FedEx points, ${row2026.scoringAvg ? row2026.scoringAvg.toFixed(3) : "—"} scoring avg`
+          : `${currentPlayer.name}: no 2026 active row`)
+      ].join("");
+
+      els.courseProfileSubtitle.textContent = profile.summary;
+      els.courseProfileBadge.textContent = `Custom Par ${profile.totalPar}`;
+      els.holeStrip.innerHTML = profile.holes.map((par, index) => `<div class="hole is-par${par}">
+        <div class="hole-bar" title="Hole ${index + 1}, par ${par}"></div>
+        <div class="hole-number">${index + 1}</div>
+        <div class="hole-par">P${par}</div>
+      </div>`).join("");
+      els.courseDemands.innerHTML = [
+        demandItem("Course Favors", profile.favors),
+        demandItem("Key Stretch", profile.keyStretch),
+        demandItem("Player Check", playerFitSummary(currentPlayer, row2026))
+      ].join("");
+      els.tournamentModalNote.textContent = "This is a custom scouting-style course rhythm, not an official course map or official scorecard. It is designed to show the kind of golf the stop is likely to reward while keeping the dashboard original and readable.";
+
+      els.tournamentModal.hidden = false;
+      document.body.style.overflow = "hidden";
+      els.tournamentModalClose.focus();
+    }
+
+    function closeTournamentModal() {
+      els.tournamentModal.hidden = true;
+      document.body.style.overflow = "";
+    }
+
+    function detailRow(label, value) {
+      return `<div class="detail-row">
+        <dt class="detail-label">${escapeHtml(label)}</dt>
+        <dd class="detail-value">${escapeHtml(value)}</dd>
+      </div>`;
+    }
+
+    function demandItem(label, value) {
+      return `<div class="demand-item">
+        <div class="demand-label">${escapeHtml(label)}</div>
+        <div class="demand-value">${escapeHtml(value)}</div>
+      </div>`;
+    }
+
+    function buildCourseProfile(event) {
+      const text = `${event.name} ${event.course} ${event.location} ${event.category}`.toLowerCase();
+      const profiles = {
+        links: {
+          style: "Links-style test",
+          summary: "Wind, firm turf, lag putting, and controlled trajectory matter more than one-dimensional power.",
+          favors: "Trajectory control + patient approach play",
+          keyStretch: "Middle-to-late holes where long par 4s and exposed par 3s change momentum",
+          holes: [4, 4, 3, 4, 5, 4, 3, 4, 4, 4, 4, 3, 5, 4, 4, 4, 3, 5]
+        },
+        major: {
+          style: "Major setup",
+          summary: "A championship rhythm with demanding par 4s, fewer easy recoveries, and premium value on approach precision.",
+          favors: "Approach play + scrambling under pressure",
+          keyStretch: "Closing six, where pars carry more value than reckless birdie chances",
+          holes: [4, 4, 3, 5, 4, 4, 3, 4, 5, 4, 4, 3, 4, 5, 4, 4, 3, 5]
+        },
+        tpc: {
+          style: "TPC target golf",
+          summary: "A modern target-golf profile with defined landing areas, wedge chances, and risk-reward par 5 scoring.",
+          favors: "Driving position + wedge proximity",
+          keyStretch: "Two par 5 chances and a short par 4 cluster where aggressive players separate",
+          holes: [4, 4, 5, 3, 4, 4, 5, 3, 4, 4, 3, 4, 5, 4, 4, 3, 4, 5]
+        },
+        resort: {
+          style: "Resort scoring",
+          summary: "A scoring-friendly rhythm where par 5s, wedge play, and streak putting can produce fast leaderboard moves.",
+          favors: "Birdie conversion + par 5 scoring",
+          keyStretch: "Front-nine scoring run before a steadier closing stretch",
+          holes: [4, 5, 4, 3, 4, 5, 4, 3, 4, 4, 5, 3, 4, 4, 5, 3, 4, 4]
+        },
+        playoff: {
+          style: "Playoff pressure",
+          summary: "A pressure-course rhythm that rewards disciplined tee shots and steady putting more than volatility.",
+          favors: "Bogey avoidance + confident putting",
+          keyStretch: "Final four, where conservative targets and speed control decide the week",
+          holes: [4, 4, 3, 4, 5, 4, 4, 3, 5, 4, 3, 4, 4, 5, 4, 4, 3, 5]
+        },
+        parkland: {
+          style: "Classic parkland",
+          summary: "Tree-lined and positional by nature, this profile rewards shaping tee shots and attacking from the fairway.",
+          favors: "Fairways + mid-iron approach play",
+          keyStretch: "A tight par 4 run where missed fairways remove birdie chances",
+          holes: [4, 4, 3, 4, 5, 4, 4, 3, 4, 4, 5, 3, 4, 4, 5, 4, 3, 4]
+        },
+        exhibition: {
+          style: "Invitational format",
+          summary: "A lower-field or team-style rhythm that places more emphasis on short-game touch and conversion chances.",
+          favors: "Putting touch + relaxed scoring",
+          keyStretch: "Late par 5 and short par 4 chances that invite match-style swings",
+          holes: [4, 5, 3, 4, 4, 5, 3, 4, 4, 4, 3, 5, 4, 4, 3, 5, 4, 4]
+        }
+      };
+
+      let profile = profiles.parkland;
+      if (text.includes("open championship") || text.includes("scottish") || text.includes("birkdale") || text.includes("renaissance")) profile = profiles.links;
+      else if (text.includes("major") || text.includes("pga championship") || text.includes("u.s. open")) profile = profiles.major;
+      else if (text.includes("tpc")) profile = profiles.tpc;
+      else if (text.includes("playoffs") || text.includes("tour championship")) profile = profiles.playoff;
+      else if (text.includes("resort") || text.includes("corales") || text.includes("vidanta") || text.includes("diamante") || text.includes("albany") || text.includes("tiburon") || text.includes("pnc")) profile = profiles.resort;
+      else if (text.includes("invitational") || text.includes("presidents cup") || text.includes("hero world challenge")) profile = profiles.exhibition;
+
+      const holes = profile.holes;
+      return {
+        ...profile,
+        totalPar: holes.reduce((sum, par) => sum + par, 0)
+      };
+    }
+
+    function playerFitSummary(player, row2026) {
+      if (!row2026) return "No current-year row for a course-fit read.";
+      const sg = cleanSg(row2026.sgTotal);
+      if (sg >= 1.5) return "Strong tee-to-green profile in 2026 data.";
+      if (row2026.scoringAvg && row2026.scoringAvg < 70) return "Scoring average suggests strong current form.";
+      if (row2026.moneyRank <= 15) return "High 2026 money rank suggests reliable current form.";
+      return "Use recent results and scoring trend as the main fit signal.";
     }
 
     function renderRecentTable(rows) {

@@ -4,7 +4,8 @@
   "season": 2026,
   "notes": [
     "Events are calendar stops, not confirmed player commitments. Tournament fields and eligibility can change week to week.",
-    "The dashboard treats golfers with a 2026 row in the local stats data as active for this schedule panel."
+    "The dashboard treats golfers with a 2026 row in the local stats data as active for this schedule panel.",
+    "Course rhythm graphics shown in the dashboard are custom scouting previews, not official course maps or official scorecards."
   ],
   "sources": [
     {
