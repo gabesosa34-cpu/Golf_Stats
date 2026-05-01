@@ -551,7 +551,7 @@
 
     .performance-grid {
       display: grid;
-      grid-template-columns: 1.05fr 1.1fr 1.15fr 1.1fr;
+      grid-template-columns: 1fr 1.05fr 1.3fr;
       gap: 12px;
       align-items: stretch;
     }
@@ -676,42 +676,11 @@
       text-transform: uppercase;
     }
 
-    .performance-note,
-    .condition-note {
+    .performance-note {
       margin-top: 10px;
       color: var(--muted);
       font-size: 0.76rem;
       line-height: 1.4;
-    }
-
-    .condition-list {
-      display: grid;
-      gap: 8px;
-    }
-
-    .condition-item {
-      padding-bottom: 8px;
-      border-bottom: 1px solid #edf4ef;
-    }
-
-    .condition-item:last-child {
-      padding-bottom: 0;
-      border-bottom: 0;
-    }
-
-    .condition-label {
-      color: #244436;
-      font-size: 0.73rem;
-      font-weight: 950;
-      text-transform: uppercase;
-    }
-
-    .condition-value {
-      margin-top: 3px;
-      color: #10251d;
-      font-size: 0.82rem;
-      line-height: 1.35;
-      font-weight: 750;
     }
 
     .performance-empty {
@@ -1764,7 +1733,7 @@
 
     function init() {
       els.seasonPill.textContent = RUN_DATE ? `Data date ${formatDate(RUN_DATE)}` : "Local PGA data";
-      els.sourceNote.textContent = `Local PGA Tour stats file generated ${formatDate(RUN_DATE)} from PGA TOUR Stats archive coverage. Career earnings, wins, and season rows reflect top-50 Official Money seasons in this dataset, not every professional golfer worldwide; 2026 coverage is ${COVERAGE_NOTE}. Current web checks also reviewed PGA TOUR Stats and ESPN stat leader pages for available golfer-stat coverage. Performance profile data loads from golfer_performance_stats_2026.json using public PGA TOUR putting, GIR, driving, and radar stat rows; surface, weather, and course-length splits are labeled where the public feed does not expose them. Major wins use a curated embedded lookup for common major winners. Upcoming tournament data is stored in upcoming_tournaments_2026.json and is current as of ${formatDate(UPCOMING_AS_OF_DATE)}. Course rhythm graphics are custom scouting previews, not official course maps.`;
+      els.sourceNote.textContent = `Local PGA Tour stats file generated ${formatDate(RUN_DATE)} from PGA TOUR Stats archive coverage. Career earnings, wins, and season rows reflect top-50 Official Money seasons in this dataset, not every professional golfer worldwide; 2026 coverage is ${COVERAGE_NOTE}. Current web checks also reviewed PGA TOUR Stats and ESPN stat leader pages for available golfer-stat coverage. Performance profile data loads from golfer_performance_stats_2026.json using public PGA TOUR putting, GIR, driving, and radar stat rows. Major wins use a curated embedded lookup for common major winners. Upcoming tournament data is stored in upcoming_tournaments_2026.json and is current as of ${formatDate(UPCOMING_AS_OF_DATE)}. Course rhythm graphics are custom scouting previews, not official course maps.`;
       renderQuickPicks();
       bindEvents();
       selectPlayer(currentPlayer.name);
@@ -1968,7 +1937,6 @@
       els.performanceSubtitle.textContent = `${asOf} · ${playerCount} measured PGA TOUR players`;
 
       const stats = profile.stats || {};
-      const notes = profile.condition_notes || {};
       els.performanceGrid.innerHTML = `
         <article class="performance-panel">
           <div class="performance-panel-title">Putting Core <span>Public ranks</span></div>
@@ -2002,15 +1970,6 @@
             ${performanceMetric("Club Head Speed", stats.club_head_speed, ["Total Attempts"])}
             ${performanceMetric("Ball Speed", stats.ball_speed, ["Total Attempts"])}
           </div>
-        </article>
-        <article class="performance-panel">
-          <div class="performance-panel-title">Condition Reads <span>Split quality</span></div>
-          <div class="condition-list">
-            ${conditionItem("Fast greens", notes.fast_greens_proxy || "Use 3-putt avoidance as the public speed-control proxy.")}
-            ${conditionItem("Grass type", "Public Bermuda/Bent/Poa split unavailable.")}
-            ${conditionItem("Weather", "Public weather-condition split unavailable.")}
-            ${conditionItem("Course length", notes.course_length_proxy || "Use distance, accuracy, and GIR as the public course-length proxy.")}
-          </div>
         </article>`;
 
       const slider = document.getElementById("puttDistanceSlider");
@@ -2037,13 +1996,6 @@
         <div class="performance-label">${escapeHtml(label)}</div>
         <div class="performance-value">${escapeHtml(statValue(stat))}</div>
         <div class="performance-rank">${escapeHtml(statSubline(stat, detailKeys))}</div>
-      </div>`;
-    }
-
-    function conditionItem(label, value) {
-      return `<div class="condition-item">
-        <div class="condition-label">${escapeHtml(label)}</div>
-        <div class="condition-value">${escapeHtml(value)}</div>
       </div>`;
     }
 
