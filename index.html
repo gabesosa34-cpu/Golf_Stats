@@ -545,6 +545,189 @@
       margin-top: 18px;
     }
 
+    .performance-section {
+      margin-top: 18px;
+    }
+
+    .performance-grid {
+      display: grid;
+      grid-template-columns: 1.05fr 1.1fr 1.15fr 1.1fr;
+      gap: 12px;
+      align-items: stretch;
+    }
+
+    .performance-panel {
+      min-width: 0;
+      border: 1px solid #d6e5dc;
+      border-radius: 8px;
+      background:
+        linear-gradient(180deg, #ffffff, #f7fbf8);
+      padding: 14px;
+      box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.88);
+    }
+
+    .performance-panel-title {
+      display: flex;
+      justify-content: space-between;
+      gap: 10px;
+      align-items: baseline;
+      margin-bottom: 11px;
+      color: #10251d;
+      font-weight: 950;
+      line-height: 1.2;
+    }
+
+    .performance-panel-title span {
+      color: var(--muted);
+      font-size: 0.7rem;
+      font-weight: 900;
+      text-transform: uppercase;
+      white-space: nowrap;
+    }
+
+    .performance-metrics {
+      display: grid;
+      gap: 8px;
+    }
+
+    .performance-metric {
+      min-width: 0;
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) auto;
+      gap: 8px;
+      align-items: baseline;
+      padding: 8px 0;
+      border-bottom: 1px solid #edf4ef;
+    }
+
+    .performance-metric:last-child { border-bottom: 0; }
+
+    .performance-label {
+      color: var(--muted);
+      font-size: 0.75rem;
+      font-weight: 900;
+      text-transform: uppercase;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    .performance-value {
+      color: #0b3022;
+      font-size: 1.08rem;
+      font-weight: 950;
+      white-space: nowrap;
+    }
+
+    .performance-rank {
+      grid-column: 1 / -1;
+      color: #6d7d74;
+      font-size: 0.72rem;
+      font-weight: 750;
+    }
+
+    .putt-readout {
+      display: flex;
+      justify-content: space-between;
+      gap: 12px;
+      align-items: flex-start;
+      padding: 12px;
+      border: 1px solid #dbe8e1;
+      border-radius: 8px;
+      background: #f2f8f4;
+    }
+
+    .putt-label {
+      display: block;
+      color: #244436;
+      font-size: 0.84rem;
+      font-weight: 950;
+    }
+
+    .putt-rank {
+      display: block;
+      margin-top: 3px;
+      color: var(--muted);
+      font-size: 0.72rem;
+      font-weight: 800;
+    }
+
+    .putt-value {
+      color: var(--green);
+      font-size: 1.9rem;
+      line-height: 1;
+      font-weight: 950;
+      white-space: nowrap;
+    }
+
+    .putt-slider {
+      width: 100%;
+      accent-color: var(--green);
+      margin: 16px 0 7px;
+    }
+
+    .putt-marks {
+      display: flex;
+      justify-content: space-between;
+      gap: 6px;
+      color: var(--muted);
+      font-size: 0.7rem;
+      font-weight: 900;
+      text-transform: uppercase;
+    }
+
+    .performance-note,
+    .condition-note {
+      margin-top: 10px;
+      color: var(--muted);
+      font-size: 0.76rem;
+      line-height: 1.4;
+    }
+
+    .condition-list {
+      display: grid;
+      gap: 8px;
+    }
+
+    .condition-item {
+      padding-bottom: 8px;
+      border-bottom: 1px solid #edf4ef;
+    }
+
+    .condition-item:last-child {
+      padding-bottom: 0;
+      border-bottom: 0;
+    }
+
+    .condition-label {
+      color: #244436;
+      font-size: 0.73rem;
+      font-weight: 950;
+      text-transform: uppercase;
+    }
+
+    .condition-value {
+      margin-top: 3px;
+      color: #10251d;
+      font-size: 0.82rem;
+      line-height: 1.35;
+      font-weight: 750;
+    }
+
+    .performance-empty {
+      grid-column: 1 / -1;
+      min-height: 118px;
+      display: grid;
+      place-items: center;
+      text-align: center;
+      color: var(--muted);
+      border: 1px dashed var(--line-strong);
+      border-radius: 8px;
+      background: #f8fbf8;
+      padding: 16px;
+      line-height: 1.4;
+    }
+
     .upcoming-grid {
       display: grid;
       grid-template-columns: repeat(5, minmax(0, 1fr));
@@ -1150,6 +1333,7 @@
     @media (max-width: 1160px) {
       .cards { grid-template-columns: repeat(3, minmax(0, 1fr)); }
       .upcoming-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+      .performance-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
       .charts { grid-template-columns: 1fr; }
     }
 
@@ -1181,6 +1365,7 @@
       .search-row { padding: 14px; }
       .cards,
       .upcoming-grid,
+      .performance-grid,
       .snapshot-grid {
         grid-template-columns: 1fr;
       }
@@ -1242,6 +1427,14 @@
     </section>
 
     <section class="cards" id="statCards"></section>
+
+    <section class="section performance-section" id="performanceSection">
+      <div class="section-header">
+        <h3>Performance Profile</h3>
+        <div class="section-subtitle" id="performanceSubtitle"></div>
+      </div>
+      <div class="performance-grid" id="performanceGrid"></div>
+    </section>
 
     <section class="section upcoming-section" id="upcomingSection">
       <div class="section-header">
@@ -1394,6 +1587,14 @@
     const RUN_DATE = "2026-04-30";
     const GENERATED_AT = "2026-04-30T13:00:32";
     const COVERAGE_NOTE = "Through Zurich Classic of New Orleans (R2026018)";
+    const PERFORMANCE_STATS_URL = "golfer_performance_stats_2026.json";
+    const DEFAULT_DISTANCE_OPTIONS = [
+      { label: "3 ft", key: "putting_3_ft" },
+      { label: "5 ft", key: "putting_5_ft" },
+      { label: "10 ft", key: "putting_10_ft" },
+      { label: "15 ft", key: "putting_15_ft", note: "Public PGA TOUR row is 15-20 ft." },
+      { label: "20+ ft", key: "putting_20_plus_ft" }
+    ];
 
     const MAJOR_WINS = {
       "Tiger Woods": 15,
@@ -1470,6 +1671,8 @@
       playerMeta: document.getElementById("playerMeta"),
       snapshotGrid: document.getElementById("snapshotGrid"),
       statCards: document.getElementById("statCards"),
+      performanceSubtitle: document.getElementById("performanceSubtitle"),
+      performanceGrid: document.getElementById("performanceGrid"),
       upcomingSubtitle: document.getElementById("upcomingSubtitle"),
       upcomingGrid: document.getElementById("upcomingGrid"),
       upcomingNote: document.getElementById("upcomingNote"),
@@ -1504,6 +1707,11 @@
     let currentPlayer = playerList.find((p) => p.name === "Scottie Scheffler") || playerList[0];
     let activeUpcomingEvents = [];
     let activeSuggestionIndex = -1;
+    let performanceData = null;
+    let performanceById = new Map();
+    let performanceByName = new Map();
+    let performanceLoading = true;
+    let activePuttDistanceIndex = 2;
 
     init();
 
@@ -1556,10 +1764,37 @@
 
     function init() {
       els.seasonPill.textContent = RUN_DATE ? `Data date ${formatDate(RUN_DATE)}` : "Local PGA data";
-      els.sourceNote.textContent = `Local PGA Tour stats file generated ${formatDate(RUN_DATE)} from PGA TOUR Stats archive coverage. Career earnings, wins, and season rows reflect top-50 Official Money seasons in this dataset, not every professional golfer worldwide; 2026 coverage is ${COVERAGE_NOTE}. Current web checks also reviewed PGA TOUR Stats and ESPN stat leader pages for available golfer-stat coverage. Major wins use a curated embedded lookup for common major winners. Upcoming tournament data is stored in upcoming_tournaments_2026.json and is current as of ${formatDate(UPCOMING_AS_OF_DATE)}. Course rhythm graphics are custom scouting previews, not official course maps.`;
+      els.sourceNote.textContent = `Local PGA Tour stats file generated ${formatDate(RUN_DATE)} from PGA TOUR Stats archive coverage. Career earnings, wins, and season rows reflect top-50 Official Money seasons in this dataset, not every professional golfer worldwide; 2026 coverage is ${COVERAGE_NOTE}. Current web checks also reviewed PGA TOUR Stats and ESPN stat leader pages for available golfer-stat coverage. Performance profile data loads from golfer_performance_stats_2026.json using public PGA TOUR putting, GIR, driving, and radar stat rows; surface, weather, and course-length splits are labeled where the public feed does not expose them. Major wins use a curated embedded lookup for common major winners. Upcoming tournament data is stored in upcoming_tournaments_2026.json and is current as of ${formatDate(UPCOMING_AS_OF_DATE)}. Course rhythm graphics are custom scouting previews, not official course maps.`;
       renderQuickPicks();
       bindEvents();
       selectPlayer(currentPlayer.name);
+      loadPerformanceStats();
+    }
+
+    function loadPerformanceStats() {
+      fetch(PERFORMANCE_STATS_URL, { cache: "no-store" })
+        .then((response) => {
+          if (!response.ok) throw new Error(`Performance stats request failed: ${response.status}`);
+          return response.json();
+        })
+        .then((data) => {
+          performanceData = data;
+          performanceById = new Map();
+          performanceByName = new Map();
+          (data.players || []).forEach((profile) => {
+            if (profile.player_id) performanceById.set(String(profile.player_id), profile);
+            if (profile.player) performanceByName.set(profile.player.toLowerCase(), profile);
+          });
+          performanceLoading = false;
+          renderDashboard(currentPlayer);
+        })
+        .catch(() => {
+          performanceLoading = false;
+          performanceData = null;
+          performanceById = new Map();
+          performanceByName = new Map();
+          renderDashboard(currentPlayer);
+        });
     }
 
     function bindEvents() {
@@ -1707,10 +1942,156 @@
         statCard("2026 Season Earnings", row2026 ? formatCurrency(row2026.money) : "—", row2026 ? `#${row2026.moneyRank} on 2026 money list` : "No 2026 top-50 row"),
       ].join("");
 
+      renderPerformanceProfile(player, row2026);
       renderUpcomingTournaments(player, row2026);
       renderRecentTable(rows);
       renderTimeline(player, bestMoney, bestRank, mostWins, row2026);
       renderCharts(player);
+    }
+
+    function renderPerformanceProfile(player, row2026) {
+      if (performanceLoading) {
+        els.performanceSubtitle.textContent = "Loading 2026 PGA TOUR performance stats";
+        els.performanceGrid.innerHTML = `<div class="performance-empty">Loading putting, driving, GIR, and speed rows for ${escapeHtml(player.name)}.</div>`;
+        return;
+      }
+
+      const profile = getPerformanceProfile(player);
+      if (!profile) {
+        els.performanceSubtitle.textContent = row2026 ? "No matching public performance row" : "No 2026 active performance row";
+        els.performanceGrid.innerHTML = `<div class="performance-empty">No public 2026 PGA TOUR putting or driving performance row was matched for ${escapeHtml(player.name)}.</div>`;
+        return;
+      }
+
+      const asOf = performanceData?.as_of_date ? formatDate(performanceData.as_of_date) : "2026 season";
+      const playerCount = performanceData?.players?.length || 0;
+      els.performanceSubtitle.textContent = `${asOf} · ${playerCount} measured PGA TOUR players`;
+
+      const stats = profile.stats || {};
+      const notes = profile.condition_notes || {};
+      els.performanceGrid.innerHTML = `
+        <article class="performance-panel">
+          <div class="performance-panel-title">Putting Core <span>Public ranks</span></div>
+          <div class="performance-metrics">
+            ${performanceMetric("One-Putt %", stats.one_putt_percentage, ["# of 1 putts"])}
+            ${performanceMetric("3-Putt Avoidance", stats.three_putt_avoidance, ["Total 3 Putts"])}
+            ${performanceMetric("Avg Made Distance", stats.avg_putting_distance_made, ["Total Rounds"])}
+          </div>
+        </article>
+        <article class="performance-panel">
+          <div class="performance-panel-title">Make % by Distance <span>Slider</span></div>
+          <div class="putt-readout">
+            <div>
+              <span class="putt-label" id="puttDistanceLabel">10 ft</span>
+              <span class="putt-rank" id="puttDistanceRank">Rank —</span>
+            </div>
+            <strong class="putt-value" id="puttDistanceValue">—</strong>
+          </div>
+          <input class="putt-slider" id="puttDistanceSlider" type="range" min="0" max="${getDistanceOptions().length - 1}" step="1" value="${activePuttDistanceIndex}" aria-label="Select putting distance" />
+          <div class="putt-marks">
+            ${getDistanceOptions().map((option) => `<span>${escapeHtml(option.label)}</span>`).join("")}
+          </div>
+          <div class="performance-note" id="puttDistanceNote"></div>
+        </article>
+        <article class="performance-panel">
+          <div class="performance-panel-title">Approach + Driving <span>2026</span></div>
+          <div class="performance-metrics">
+            ${performanceMetric("GIR %", stats.gir_percentage, ["Greens Hit"])}
+            ${performanceMetric("Driving Distance", stats.driving_distance, ["Total Drives"])}
+            ${performanceMetric("Driving Accuracy", stats.driving_accuracy, ["Fairways Hit"])}
+            ${performanceMetric("Club Head Speed", stats.club_head_speed, ["Total Attempts"])}
+            ${performanceMetric("Ball Speed", stats.ball_speed, ["Total Attempts"])}
+          </div>
+        </article>
+        <article class="performance-panel">
+          <div class="performance-panel-title">Condition Reads <span>Split quality</span></div>
+          <div class="condition-list">
+            ${conditionItem("Fast greens", notes.fast_greens_proxy || "Use 3-putt avoidance as the public speed-control proxy.")}
+            ${conditionItem("Grass type", "Public Bermuda/Bent/Poa split unavailable.")}
+            ${conditionItem("Weather", "Public weather-condition split unavailable.")}
+            ${conditionItem("Course length", notes.course_length_proxy || "Use distance, accuracy, and GIR as the public course-length proxy.")}
+          </div>
+        </article>`;
+
+      const slider = document.getElementById("puttDistanceSlider");
+      if (slider) {
+        slider.addEventListener("input", () => {
+          activePuttDistanceIndex = Number(slider.value);
+          updatePuttDistanceReadout(profile);
+        });
+      }
+      updatePuttDistanceReadout(profile);
+    }
+
+    function getPerformanceProfile(player) {
+      if (!performanceData) return null;
+      return performanceById.get(String(player.playerId)) || performanceByName.get(player.name.toLowerCase()) || null;
+    }
+
+    function getDistanceOptions() {
+      return performanceData?.distance_slider?.length ? performanceData.distance_slider : DEFAULT_DISTANCE_OPTIONS;
+    }
+
+    function performanceMetric(label, stat, detailKeys = []) {
+      return `<div class="performance-metric">
+        <div class="performance-label">${escapeHtml(label)}</div>
+        <div class="performance-value">${escapeHtml(statValue(stat))}</div>
+        <div class="performance-rank">${escapeHtml(statSubline(stat, detailKeys))}</div>
+      </div>`;
+    }
+
+    function conditionItem(label, value) {
+      return `<div class="condition-item">
+        <div class="condition-label">${escapeHtml(label)}</div>
+        <div class="condition-value">${escapeHtml(value)}</div>
+      </div>`;
+    }
+
+    function updatePuttDistanceReadout(profile) {
+      const options = getDistanceOptions();
+      const index = Math.min(Math.max(activePuttDistanceIndex, 0), options.length - 1);
+      const option = options[index] || options[0];
+      const stat = profile?.stats?.[option.key];
+      const labelEl = document.getElementById("puttDistanceLabel");
+      const rankEl = document.getElementById("puttDistanceRank");
+      const valueEl = document.getElementById("puttDistanceValue");
+      const noteEl = document.getElementById("puttDistanceNote");
+      if (!labelEl || !rankEl || !valueEl || !noteEl) return;
+
+      labelEl.textContent = option.label;
+      rankEl.textContent = stat?.rank ? `Rank #${stat.rank}` : "No public rank";
+      valueEl.textContent = statValue(stat);
+      const attempts = stat?.details?.Attempts;
+      const made = stat?.details?.["Putts made"] || stat?.details?.["Putts Made"];
+      noteEl.textContent = [option.note, attempts && made ? `${made} made on ${attempts} attempts` : null]
+        .filter(Boolean)
+        .join(" · ") || "Make percentage from the public PGA TOUR distance row.";
+    }
+
+    function statValue(stat) {
+      return stat?.value ? String(stat.value) : "—";
+    }
+
+    function statSubline(stat, detailKeys = []) {
+      if (!stat) return "No public row";
+      const rank = stat.rank ? `Rank #${stat.rank}` : "No public rank";
+      const detail = detailKeys
+        .map((key) => stat.details?.[key] ? `${stat.details[key]} ${compactDetailLabel(key)}` : "")
+        .find(Boolean);
+      return [rank, detail].filter(Boolean).join(" · ");
+    }
+
+    function compactDetailLabel(key) {
+      const labels = {
+        "# of 1 putts": "one-putts",
+        "Total 3 Putts": "3-putts",
+        "Total Rounds": "rounds",
+        "Greens Hit": "greens hit",
+        "Total Drives": "drives",
+        "Fairways Hit": "fairways hit",
+        "Total Attempts": "attempts"
+      };
+      return labels[key] || key.toLowerCase();
     }
 
     function renderUpcomingTournaments(player, row2026) {
