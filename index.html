@@ -1556,7 +1556,7 @@
     const RUN_DATE = "2026-04-30";
     const GENERATED_AT = "2026-04-30T13:00:32";
     const COVERAGE_NOTE = "Through Zurich Classic of New Orleans (R2026018)";
-    const PERFORMANCE_STATS_URL = "golfer_performance_stats_2026.json";
+    const PERFORMANCE_STATS_URL = "golfer_performance_history.json";
     const DEFAULT_DISTANCE_OPTIONS = [
       { label: "3 ft", key: "putting_3_ft" },
       { label: "5 ft", key: "putting_5_ft" },
@@ -1733,7 +1733,7 @@
 
     function init() {
       els.seasonPill.textContent = RUN_DATE ? `Data date ${formatDate(RUN_DATE)}` : "Local PGA data";
-      els.sourceNote.textContent = `Local PGA Tour stats file generated ${formatDate(RUN_DATE)} from PGA TOUR Stats archive coverage. Career earnings, wins, and season rows reflect top-50 Official Money seasons in this dataset, not every professional golfer worldwide; 2026 coverage is ${COVERAGE_NOTE}. Current web checks also reviewed PGA TOUR Stats and ESPN stat leader pages for available golfer-stat coverage. Performance profile data loads from golfer_performance_stats_2026.json using public PGA TOUR putting, GIR, driving, and radar stat rows. Major wins use a curated embedded lookup for common major winners. Upcoming tournament data is stored in upcoming_tournaments_2026.json and is current as of ${formatDate(UPCOMING_AS_OF_DATE)}. Course rhythm graphics are custom scouting previews, not official course maps.`;
+      els.sourceNote.textContent = `Local PGA Tour stats file generated ${formatDate(RUN_DATE)} from PGA TOUR Stats archive coverage. Career earnings, wins, and season rows reflect top-50 Official Money seasons in this dataset, not every professional golfer worldwide; 2026 coverage is ${COVERAGE_NOTE}. Current web checks also reviewed PGA TOUR Stats and ESPN stat leader pages for available golfer-stat coverage. Performance profile data loads from golfer_performance_history.json using historical public PGA TOUR putting, GIR, driving, and radar stat rows where available. Major wins use a curated embedded lookup for common major winners. Upcoming tournament data is stored in upcoming_tournaments_2026.json and is current as of ${formatDate(UPCOMING_AS_OF_DATE)}. Course rhythm graphics are custom scouting previews, not official course maps.`;
       renderQuickPicks();
       bindEvents();
       selectPlayer(currentPlayer.name);
@@ -1920,34 +1920,35 @@
 
     function renderPerformanceProfile(player, row2026) {
       if (performanceLoading) {
-        els.performanceSubtitle.textContent = "Loading 2026 PGA TOUR performance stats";
+        els.performanceSubtitle.textContent = "Loading historical PGA TOUR performance stats";
         els.performanceGrid.innerHTML = `<div class="performance-empty">Loading putting, driving, GIR, and speed rows for ${escapeHtml(player.name)}.</div>`;
         return;
       }
 
       const profile = getPerformanceProfile(player);
       if (!profile) {
-        els.performanceSubtitle.textContent = row2026 ? "No matching public performance row" : "No 2026 active performance row";
-        els.performanceGrid.innerHTML = `<div class="performance-empty">No public 2026 PGA TOUR putting or driving performance row was matched for ${escapeHtml(player.name)}.</div>`;
+        els.performanceSubtitle.textContent = "No matching historical performance row";
+        els.performanceGrid.innerHTML = `<div class="performance-empty">No public PGA TOUR putting or driving performance row was matched for ${escapeHtml(player.name)}.</div>`;
         return;
       }
 
-      const asOf = performanceData?.as_of_date ? formatDate(performanceData.as_of_date) : "2026 season";
+      const range = performanceData?.year_range?.length === 2 ? `${performanceData.year_range[0]}-${performanceData.year_range[1]}` : "historical";
       const playerCount = performanceData?.players?.length || 0;
-      els.performanceSubtitle.textContent = `${asOf} · ${playerCount} measured PGA TOUR players`;
+      els.performanceSubtitle.textContent = `${range} measured career profile · ${playerCount} PGA TOUR players`;
 
-      const stats = profile.stats || {};
+      const stats = profile.career || {};
+      const best = profile.best || {};
       els.performanceGrid.innerHTML = `
         <article class="performance-panel">
-          <div class="performance-panel-title">Putting Core <span>Public ranks</span></div>
+          <div class="performance-panel-title">Putting Career <span>Weighted</span></div>
           <div class="performance-metrics">
-            ${performanceMetric("One-Putt %", stats.one_putt_percentage, ["# of 1 putts"])}
-            ${performanceMetric("3-Putt Avoidance", stats.three_putt_avoidance, ["Total 3 Putts"])}
-            ${performanceMetric("Avg Made Distance", stats.avg_putting_distance_made, ["Total Rounds"])}
+            ${performanceMetric("One-Putt %", stats.one_putt_percentage, best.one_putt_percentage)}
+            ${performanceMetric("3-Putt Avoidance", stats.three_putt_avoidance, best.three_putt_avoidance)}
+            ${performanceMetric("Avg Made Distance", stats.avg_putting_distance_made, best.avg_putting_distance_made)}
           </div>
         </article>
         <article class="performance-panel">
-          <div class="performance-panel-title">Make % by Distance <span>Slider</span></div>
+          <div class="performance-panel-title">Career Make % by Distance <span>Slider</span></div>
           <div class="putt-readout">
             <div>
               <span class="putt-label" id="puttDistanceLabel">10 ft</span>
@@ -1962,13 +1963,13 @@
           <div class="performance-note" id="puttDistanceNote"></div>
         </article>
         <article class="performance-panel">
-          <div class="performance-panel-title">Approach + Driving <span>2026</span></div>
+          <div class="performance-panel-title">Approach + Driving <span>Career</span></div>
           <div class="performance-metrics">
-            ${performanceMetric("GIR %", stats.gir_percentage, ["Greens Hit"])}
-            ${performanceMetric("Driving Distance", stats.driving_distance, ["Total Drives"])}
-            ${performanceMetric("Driving Accuracy", stats.driving_accuracy, ["Fairways Hit"])}
-            ${performanceMetric("Club Head Speed", stats.club_head_speed, ["Total Attempts"])}
-            ${performanceMetric("Ball Speed", stats.ball_speed, ["Total Attempts"])}
+            ${performanceMetric("GIR %", stats.gir_percentage, best.gir_percentage)}
+            ${performanceMetric("Driving Distance", stats.driving_distance, best.driving_distance)}
+            ${performanceMetric("Driving Accuracy", stats.driving_accuracy, best.driving_accuracy)}
+            ${performanceMetric("Club Head Speed", stats.club_head_speed, best.club_head_speed)}
+            ${performanceMetric("Ball Speed", stats.ball_speed, best.ball_speed)}
           </div>
         </article>`;
 
@@ -1991,11 +1992,11 @@
       return performanceData?.distance_slider?.length ? performanceData.distance_slider : DEFAULT_DISTANCE_OPTIONS;
     }
 
-    function performanceMetric(label, stat, detailKeys = []) {
+    function performanceMetric(label, stat, bestStat) {
       return `<div class="performance-metric">
         <div class="performance-label">${escapeHtml(label)}</div>
         <div class="performance-value">${escapeHtml(statValue(stat))}</div>
-        <div class="performance-rank">${escapeHtml(statSubline(stat, detailKeys))}</div>
+        <div class="performance-rank">${escapeHtml(careerStatSubline(stat, bestStat))}</div>
       </div>`;
     }
 
@@ -2003,7 +2004,8 @@
       const options = getDistanceOptions();
       const index = Math.min(Math.max(activePuttDistanceIndex, 0), options.length - 1);
       const option = options[index] || options[0];
-      const stat = profile?.stats?.[option.key];
+      const stat = profile?.career?.[option.key];
+      const bestStat = profile?.best?.[option.key];
       const labelEl = document.getElementById("puttDistanceLabel");
       const rankEl = document.getElementById("puttDistanceRank");
       const valueEl = document.getElementById("puttDistanceValue");
@@ -2011,39 +2013,29 @@
       if (!labelEl || !rankEl || !valueEl || !noteEl) return;
 
       labelEl.textContent = option.label;
-      rankEl.textContent = stat?.rank ? `Rank #${stat.rank}` : "No public rank";
+      rankEl.textContent = stat?.rank ? `Career rank #${stat.rank} of ${stat.rank_pool}` : "No career rank";
       valueEl.textContent = statValue(stat);
-      const attempts = stat?.details?.Attempts;
-      const made = stat?.details?.["Putts made"] || stat?.details?.["Putts Made"];
-      noteEl.textContent = [option.note, attempts && made ? `${made} made on ${attempts} attempts` : null]
+      const made = stat?.total_numerator;
+      const attempts = stat?.total_denominator;
+      const madeText = made != null && attempts != null ? `${formatWhole(made)} made on ${formatWhole(attempts)} attempts` : null;
+      const bestText = bestStat?.year && bestStat?.value ? `Best ${bestStat.year}: ${bestStat.value}` : null;
+      const yearsText = stat?.years ? `${stat.years} measured seasons` : null;
+      noteEl.textContent = [option.note, yearsText, madeText, bestText]
         .filter(Boolean)
-        .join(" · ") || "Make percentage from the public PGA TOUR distance row.";
+        .join(" · ") || "Career make percentage from available PGA TOUR distance rows.";
     }
 
     function statValue(stat) {
       return stat?.value ? String(stat.value) : "—";
     }
 
-    function statSubline(stat, detailKeys = []) {
+    function careerStatSubline(stat, bestStat) {
       if (!stat) return "No public row";
-      const rank = stat.rank ? `Rank #${stat.rank}` : "No public rank";
-      const detail = detailKeys
-        .map((key) => stat.details?.[key] ? `${stat.details[key]} ${compactDetailLabel(key)}` : "")
-        .find(Boolean);
-      return [rank, detail].filter(Boolean).join(" · ");
-    }
-
-    function compactDetailLabel(key) {
-      const labels = {
-        "# of 1 putts": "one-putts",
-        "Total 3 Putts": "3-putts",
-        "Total Rounds": "rounds",
-        "Greens Hit": "greens hit",
-        "Total Drives": "drives",
-        "Fairways Hit": "fairways hit",
-        "Total Attempts": "attempts"
-      };
-      return labels[key] || key.toLowerCase();
+      const rank = stat.rank ? `Career rank #${stat.rank} of ${stat.rank_pool}` : "No career rank";
+      const seasons = stat.years ? `${stat.years} seasons` : null;
+      const range = stat.first_year && stat.last_year ? `${stat.first_year}-${stat.last_year}` : null;
+      const best = bestStat?.year && bestStat?.value ? `Best ${bestStat.year}: ${bestStat.value}` : null;
+      return [rank, seasons, range, best].filter(Boolean).join(" · ");
     }
 
     function renderUpcomingTournaments(player, row2026) {
@@ -2449,6 +2441,10 @@
     }
 
     function formatNumber(value) {
+      return new Intl.NumberFormat("en-US", { maximumFractionDigits: 0 }).format(value || 0);
+    }
+
+    function formatWhole(value) {
       return new Intl.NumberFormat("en-US", { maximumFractionDigits: 0 }).format(value || 0);
     }
 
