@@ -1671,7 +1671,7 @@
     const seasons = SEASON_ROWS.map(toRow).sort((a, b) => a.year - b.year || a.moneyRank - b.moneyRank);
     const players = buildPlayers(seasons);
     Object.values(players).forEach(preparePlayer);
-    const playerList = Object.values(players).sort((a, b) => b.latest.year - a.latest.year || a.latest.moneyRank - b.latest.moneyRank || a.name.localeCompare(b.name));
+    let playerList = sortPlayerList(Object.values(players));
     const worldRanks = buildWorldRankLookup(seasons);
     let currentPlayer = playerList.find((p) => p.name === "Scottie Scheffler") || playerList[0];
     let activeUpcomingEvents = [];
@@ -1704,12 +1704,22 @@
 
     function preparePlayer(player) {
       player.rows.sort((a, b) => a.year - b.year);
-      player.latest = player.rows[player.rows.length - 1];
-      player.first = player.rows[0];
+      player.latest = player.rows[player.rows.length - 1] || null;
+      player.first = player.rows[0] || null;
       player.totalEarnings = player.rows.reduce((sum, row) => sum + row.money, 0);
       player.totalWins = player.rows.reduce((sum, row) => sum + row.wins, 0);
       player.majorWins = MAJOR_WINS[player.name] ?? 0;
       player.latestOwgr = [...player.rows].reverse().find((row) => row.owgrPoints > 0);
+    }
+
+    function sortPlayerList(list) {
+      return list.slice().sort((a, b) => {
+        const aYear = a.latest?.year || a.performanceLast || 0;
+        const bYear = b.latest?.year || b.performanceLast || 0;
+        const aRank = a.latest?.moneyRank ?? 999;
+        const bRank = b.latest?.moneyRank ?? 999;
+        return bYear - aYear || aRank - bRank || a.name.localeCompare(b.name);
+      });
     }
 
     function buildWorldRankLookup(rows) {
@@ -1754,7 +1764,9 @@
             if (profile.player_id) performanceById.set(String(profile.player_id), profile);
             if (profile.player) performanceByName.set(profile.player.toLowerCase(), profile);
           });
+          mergePerformancePlayers(data.players || []);
           performanceLoading = false;
+          renderQuickPicks();
           renderDashboard(currentPlayer);
         })
         .catch(() => {
@@ -1764,6 +1776,29 @@
           performanceByName = new Map();
           renderDashboard(currentPlayer);
         });
+    }
+
+    function mergePerformancePlayers(profiles) {
+      profiles.forEach((profile) => {
+        if (!profile.player || players[profile.player]) return;
+        const player = {
+          name: profile.player,
+          playerId: profile.player_id,
+          country: profile.country || "",
+          rows: [],
+          performanceOnly: true,
+          performanceFirst: profile.first_year,
+          performanceLast: profile.last_year,
+          totalEarnings: 0,
+          totalWins: 0,
+          majorWins: MAJOR_WINS[profile.player] ?? 0,
+          latestOwgr: null,
+          first: null,
+          latest: null,
+        };
+        players[player.name] = player;
+      });
+      playerList = sortPlayerList(Object.values(players));
     }
 
     function bindEvents() {
@@ -1832,12 +1867,12 @@
     function renderSuggestions(query) {
       const normalized = query.trim().toLowerCase();
       const matches = playerList
-        .filter((player) => !normalized || player.name.toLowerCase().includes(normalized) || player.country.toLowerCase().includes(normalized))
+        .filter((player) => !normalized || player.name.toLowerCase().includes(normalized) || (player.country || "").toLowerCase().includes(normalized))
         .slice(0, 9);
 
       activeSuggestionIndex = -1;
       if (!matches.length) {
-        els.suggestions.innerHTML = `<div class="empty-state">No matching golfer in the embedded top-50 season data.</div>`;
+        els.suggestions.innerHTML = `<div class="empty-state">No matching golfer in the embedded season or performance data.</div>`;
         els.suggestions.classList.add("is-open");
         return;
       }
@@ -1848,9 +1883,9 @@
           <span class="suggestion-badge">${initials(player.name)}</span>
           <span>
             <span class="suggestion-name">${escapeHtml(player.name)}</span>
-            <span class="suggestion-meta">${escapeHtml(player.country)} · ${player.first.year}-${latest.year}</span>
+            <span class="suggestion-meta">${escapeHtml(suggestionMeta(player))}</span>
           </span>
-          <span class="suggestion-rank">#${latest.moneyRank} · ${latest.year}</span>
+          <span class="suggestion-rank">${escapeHtml(suggestionRank(player))}</span>
         </button>`;
       }).join("");
 
@@ -1858,6 +1893,19 @@
         button.addEventListener("click", () => selectPlayer(button.dataset.player));
       });
       els.suggestions.classList.add("is-open");
+    }
+
+    function suggestionMeta(player) {
+      if (player.first && player.latest) return `${player.country || "Unknown"} · ${player.first.year}-${player.latest.year}`;
+      const profile = getPerformanceProfile(player);
+      if (profile) return `${profile.country || player.country || "Unknown"} · measured ${profile.first_year}-${profile.last_year}`;
+      return `${player.country || "Unknown"} · performance profile`;
+    }
+
+    function suggestionRank(player) {
+      if (player.latest) return `#${player.latest.moneyRank} · ${player.latest.year}`;
+      const profile = getPerformanceProfile(player);
+      return profile ? `${profile.measured_seasons} seasons` : "Profile";
     }
 
     function closeSuggestions() {
@@ -1883,29 +1931,37 @@
       const rows = player.rows;
       const latest = player.latest;
       const row2026 = rows.find((row) => row.year === 2026);
-      const bestMoney = maxBy(rows, "money");
-      const bestRank = minBy(rows, "moneyRank");
-      const mostWins = maxBy(rows, "wins");
+      const profile = getPerformanceProfile(player);
+      const bestMoney = rows.length ? maxBy(rows, "money") : null;
+      const bestRank = rows.length ? minBy(rows, "moneyRank") : null;
+      const mostWins = rows.length ? maxBy(rows, "wins") : null;
       const latestOwgrRank = player.latestOwgr ? worldRanks.get(`${player.latestOwgr.playerId}-${player.latestOwgr.year}`) : null;
 
       els.avatar.textContent = initials(player.name);
       els.playerName.textContent = player.name;
       els.playerMeta.innerHTML = [
         player.country,
-        `${player.first.year}-${latest.year}`,
-        latest.coverage,
+        latest && player.first ? `${player.first.year}-${latest.year}` : performanceWindow(profile),
+        latest ? latest.coverage : "PGA TOUR measured performance profile",
       ].filter(Boolean).map((item) => `<span class="meta-chip">${escapeHtml(item)}</span>`).join("");
 
-      els.snapshotGrid.innerHTML = [
-        ["Latest Money Rank", `#${latest.moneyRank}`],
-        ["Latest Earnings", formatCurrency(latest.money)],
-        ["Scoring Avg", latest.scoringAvg ? latest.scoringAvg.toFixed(3) : "—"],
-        ["FedEx Points", latest.fedexPoints ? formatNumber(latest.fedexPoints) : "—"],
-      ].map(([label, value]) => snapshot(label, value)).join("");
+      els.snapshotGrid.innerHTML = latest
+        ? [
+            ["Latest Money Rank", `#${latest.moneyRank}`],
+            ["Latest Earnings", formatCurrency(latest.money)],
+            ["Scoring Avg", latest.scoringAvg ? latest.scoringAvg.toFixed(3) : "—"],
+            ["FedEx Points", latest.fedexPoints ? formatNumber(latest.fedexPoints) : "—"],
+          ].map(([label, value]) => snapshot(label, value)).join("")
+        : [
+            ["Measured Seasons", profile?.measured_seasons || "—"],
+            ["Performance Window", performanceWindow(profile) || "—"],
+            ["Driving Distance", profile?.career?.driving_distance?.value || "—"],
+            ["Putting from 10 ft", profile?.career?.putting_10_ft?.value || "—"],
+          ].map(([label, value]) => snapshot(label, value)).join("");
 
       els.statCards.innerHTML = [
-        statCard("Career Earnings", formatCurrency(player.totalEarnings), `${rows.length} tracked top-50 seasons`),
-        statCard("Total Wins", formatNumber(player.totalWins), "PGA Tour season wins in data"),
+        statCard("Career Earnings", rows.length ? formatCurrency(player.totalEarnings) : "—", rows.length ? `${rows.length} tracked top-50 seasons` : "No top-50 earnings row in this dashboard"),
+        statCard("Total Wins", rows.length ? formatNumber(player.totalWins) : "—", rows.length ? "PGA Tour season wins in data" : "No season-win row in this dashboard"),
         statCard("Major Wins", formatNumber(player.majorWins), player.majorWins ? "Curated major championship count" : "No curated major wins listed"),
         statCard("World Ranking", latestOwgrRank ? `#${latestOwgrRank}` : "—", player.latestOwgr ? `${player.latestOwgr.year} OWGR points rank in top 50` : "OWGR points unavailable"),
         statCard("2026 Season Earnings", row2026 ? formatCurrency(row2026.money) : "—", row2026 ? `#${row2026.moneyRank} on 2026 money list` : "No 2026 top-50 row"),
@@ -1916,6 +1972,10 @@
       renderRecentTable(rows);
       renderTimeline(player, bestMoney, bestRank, mostWins, row2026);
       renderCharts(player);
+    }
+
+    function performanceWindow(profile) {
+      return profile?.first_year && profile?.last_year ? `${profile.first_year}-${profile.last_year}` : "";
     }
 
     function renderPerformanceProfile(player, row2026) {
@@ -1932,9 +1992,9 @@
         return;
       }
 
-      const range = performanceData?.year_range?.length === 2 ? `${performanceData.year_range[0]}-${performanceData.year_range[1]}` : "historical";
-      const playerCount = performanceData?.players?.length || 0;
-      els.performanceSubtitle.textContent = `${range} measured career profile · ${playerCount} PGA TOUR players`;
+      const playerRange = performanceWindow(profile) || "measured career";
+      const measuredSeasons = profile.measured_seasons ? `${profile.measured_seasons} measured seasons` : "measured seasons";
+      els.performanceSubtitle.textContent = `${playerRange} · ${measuredSeasons}`;
 
       const stats = profile.career || {};
       const best = profile.best || {};
@@ -2216,6 +2276,10 @@
     function renderRecentTable(rows) {
       const allSeasons = rows.slice().sort((a, b) => b.year - a.year);
       els.recentSubtitle.textContent = `${allSeasons.length} tracked seasons · scroll table`;
+      if (!allSeasons.length) {
+        els.recentRows.innerHTML = `<tr><td colspan="7">No top-50 earnings seasons are stored for this golfer. The performance profile above still uses the available PGA TOUR measured stats.</td></tr>`;
+        return;
+      }
       els.recentRows.innerHTML = allSeasons.map((row) => `<tr>
         <td>${row.year}</td>
         <td><span class="rank-pill">#${row.moneyRank}</span></td>
@@ -2228,6 +2292,20 @@
     }
 
     function renderTimeline(player, bestMoney, bestRank, mostWins, row2026) {
+      if (!player.rows.length) {
+        const profile = getPerformanceProfile(player);
+        els.timelineSubtitle.textContent = performanceWindow(profile) || "Measured profile";
+        els.timeline.innerHTML = profile
+          ? [
+              performanceTimelineItem(profile.first_year, "First measured performance season", `${profile.measured_seasons} measured PGA TOUR seasons`),
+              performanceTimelineItem(profile.best?.driving_distance?.year, "Best driving-distance season", profile.best?.driving_distance?.value ? `${profile.best.driving_distance.value} yards` : null),
+              performanceTimelineItem(profile.best?.putting_10_ft?.year, "Best 10-foot putting season", profile.best?.putting_10_ft?.value || null),
+              performanceTimelineItem(profile.last_year, "Latest measured performance season", `${profile.last_year} public stat rows`)
+            ].filter(Boolean).join("")
+          : `<div class="empty-state">No season or performance timeline is available.</div>`;
+        return;
+      }
+
       const milestones = [
         {
           year: player.first.year,
@@ -2275,8 +2353,28 @@
         </div>`).join("");
     }
 
+    function performanceTimelineItem(year, title, meta) {
+      if (!year || !meta) return "";
+      return `<div class="timeline-item">
+        <div class="timeline-dot">${String(year).slice(-2)}</div>
+        <div class="timeline-copy">
+          <div class="timeline-title">${escapeHtml(title)}</div>
+          <div class="timeline-meta">${year} · ${escapeHtml(meta)}</div>
+        </div>
+      </div>`;
+    }
+
     function renderCharts(player) {
       const rows = player.rows;
+      if (!rows.length) {
+        els.earningsChartValue.textContent = "No top-50 seasons";
+        els.winsChartValue.textContent = "No top-50 seasons";
+        els.rankingChartValue.textContent = "No top-50 seasons";
+        drawEmptyChart(els.earningsChart, "No earnings season rows");
+        drawEmptyChart(els.winsChart, "No wins season rows");
+        drawEmptyChart(els.rankingChart, "No ranking season rows");
+        return;
+      }
       const earningsPoints = rows.map((row) => ({ x: row.year, y: row.money, label: formatCurrency(row.money) }));
       const winsPoints = rows.map((row) => ({ x: row.year, y: row.wins, label: `${row.wins} wins` }));
       const rankingPoints = rows.map((row) => ({ x: row.year, y: row.moneyRank, label: `#${row.moneyRank}` }));
@@ -2288,6 +2386,11 @@
       drawBarChart(els.earningsChart, earningsPoints, { color: "#187349", formatY: compactMoney });
       drawBarChart(els.winsChart, winsPoints, { color: "#c88b20", formatY: (value) => String(value) });
       drawLineChart(els.rankingChart, rankingPoints, { color: "#2467b2", inverse: true, formatY: (value) => `#${Math.round(value)}` });
+    }
+
+    function drawEmptyChart(svg, label) {
+      svg.innerHTML = "";
+      svg.appendChild(svgText(260, 119, label, "middle"));
     }
 
     function drawBarChart(svg, points, options) {
