@@ -3,6 +3,11 @@
 !README.md
 !index.html
 !.nojekyll
+!.github/
+!.github/workflows/
+!.github/workflows/update-golf-data.yml
+!collect_golf_stats.py
+!sync_dashboard_data.py
 !upcoming_tournaments_2026.json
 !golfer_performance_stats_2026.json
 !golfer_performance_history.json

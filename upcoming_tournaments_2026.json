@@ -1,11 +1,12 @@
 {
-  "as_of_date": "2026-05-01",
+  "as_of_date": "2026-05-04",
   "tour": "PGA Tour",
   "season": 2026,
   "notes": [
     "Events are calendar stops, not confirmed player commitments. Tournament fields and eligibility can change week to week.",
     "The dashboard treats golfers with a 2026 row in the local stats data as active for this schedule panel.",
-    "Course rhythm graphics shown in the dashboard are custom scouting previews, not official course maps or official scorecards."
+    "Course rhythm graphics shown in the dashboard are custom scouting previews, not official course maps or official scorecards.",
+    "Cadillac Championship result updated after the final round on 2026-05-03."
   ],
   "sources": [
     {
@@ -23,6 +24,10 @@
     {
       "name": "PNC Championship PGA TOUR overview",
       "url": "https://www.pgatour.com/pgatour-champions/tournaments/2026/pnc-championship/S2026600/overview"
+    },
+    {
+      "name": "PGA TOUR Cadillac Championship points and payouts",
+      "url": "https://www.pgatour.com/article/news/betting-dfs/2026/05/03/cameron-young-wins-cadillac-championship-trump-national-doral-blue-monster-prize-money-purse-points-payouts-breakdown"
     }
   ],
   "events": [
@@ -33,7 +38,17 @@
       "course": "Trump National Doral (Blue Monster)",
       "location": "Miami, FL",
       "category": "Signature event",
-      "status_as_of_date": "in_progress"
+      "status_as_of_date": "completed",
+      "winner": "Cameron Young",
+      "winning_score": "-19",
+      "total_strokes": 269,
+      "final_round": 68,
+      "margin": "6 strokes",
+      "runner_up": "Scottie Scheffler",
+      "runner_up_score": "-13",
+      "winner_earnings": 3600000,
+      "winner_fedexcup_points": 700,
+      "result_source_url": "https://www.pgatour.com/article/news/betting-dfs/2026/05/03/cameron-young-wins-cadillac-championship-trump-national-doral-blue-monster-prize-money-purse-points-payouts-breakdown"
     },
     {
       "name": "Truist Championship",
