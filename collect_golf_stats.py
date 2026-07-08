@@ -72,6 +72,24 @@ query StatOverview($tourCode: TourCode!, $year: Int) {
 }
 """
 
+PLAYER_TOURNAMENT_RESULTS_QUERY = """
+query PlayerResults($playerId: ID!) {
+  playerProfileTournamentResults(playerId: $playerId) {
+    playerId
+    tournaments {
+      tournamentNum
+      tournaments {
+        tournamentId
+        year
+        roundScores { roundScore }
+      }
+    }
+  }
+}
+"""
+
+NOTABLE_MONEY_RANK_CUTOFF = 150
+
 SELECTED_STAT_TITLES = [
     "Official Money",
     "Victory Leaders",
@@ -201,6 +219,30 @@ def fetch_stat_details(year, stat_id, event_query=None):
 
 def fetch_overview(year):
     return gql(STAT_OVERVIEW_QUERY, {"tourCode": "R", "year": int(year)}).get("statOverview")
+
+
+def unofficial_scoring_averages(player_id):
+    """Reconstruct a per-season actual scoring average from career round-by-round
+    results, for seasons where the player fell short of PGA Tour's minimum
+    rounds-played threshold to appear in the official ranked stat table."""
+    result = gql(PLAYER_TOURNAMENT_RESULTS_QUERY, {"playerId": player_id}).get("playerProfileTournamentResults")
+    strokes_by_year = {}
+    rounds_by_year = {}
+    for group in (result or {}).get("tournaments") or []:
+        for event in group.get("tournaments") or []:
+            year = event.get("year")
+            if year is None:
+                continue
+            for round_score in event.get("roundScores") or []:
+                score = round_score.get("roundScore")
+                if score and score.lstrip("-").isdigit():
+                    strokes_by_year[year] = strokes_by_year.get(year, 0) + int(score)
+                    rounds_by_year[year] = rounds_by_year.get(year, 0) + 1
+    return {
+        year: {"avg": round(strokes_by_year[year] / rounds_by_year[year], 3), "rounds": rounds_by_year[year]}
+        for year in strokes_by_year
+        if rounds_by_year.get(year)
+    }
 
 
 def flatten_catalog(overview):
@@ -465,6 +507,44 @@ def main():
             if completed % 50 == 0:
                 print(f"Fetched {completed}/{len(jobs)} stat tables")
 
+    notable_player_ids = set()
+    for row in wide_by_key.values():
+        rank = parse_numeric(row.get("money_rank"))
+        player_id = row.get("player_id")
+        if player_id and rank is not None and rank <= NOTABLE_MONEY_RANK_CUTOFF:
+            notable_player_ids.add(player_id)
+
+    def reconstruct_job(player_id):
+        try:
+            return player_id, unofficial_scoring_averages(player_id), None
+        except Exception as exc:
+            return player_id, None, str(exc)[:300]
+
+    unofficial_by_player = {}
+    with ThreadPoolExecutor(max_workers=8) as executor:
+        futures = [executor.submit(reconstruct_job, player_id) for player_id in notable_player_ids]
+        completed = 0
+        for future in as_completed(futures):
+            completed += 1
+            player_id, per_year, error = future.result()
+            if error:
+                failures.append({"year": None, "stat_id": "unofficial_scoring", "stat_title": "Unofficial Scoring Average", "error": f"{player_id}: {error}"})
+            else:
+                unofficial_by_player[player_id] = per_year
+            if completed % 100 == 0:
+                print(f"Reconstructed scoring for {completed}/{len(notable_player_ids)} notable players")
+
+    unofficial_fill_count = 0
+    for row in wide_by_key.values():
+        if row.get("scoring_average_numeric") is not None:
+            continue
+        info = (unofficial_by_player.get(row.get("player_id")) or {}).get(row.get("year"))
+        if info:
+            row["scoring_average_unofficial_actual"] = f"{info['avg']:.3f}"
+            row["scoring_average_unofficial_actual_numeric"] = info["avg"]
+            row["scoring_average_unofficial_rounds"] = info["rounds"]
+            unofficial_fill_count += 1
+
     wide_rows = list(wide_by_key.values())
     wide_rows.sort(key=lambda r: (r.get("year") or 0, parse_numeric(r.get("money_rank")) or 9999, r.get("player") or ""))
     top50_rows.sort(key=lambda r: (r.get("year") or 0, parse_numeric(r.get("rank")) or 9999, r.get("player") or ""))
@@ -480,6 +560,7 @@ def main():
             "season_2026_note": event_label_by_year.get(2026, "Partial 2026 data through completed events available from PGA Tour stats."),
             "season_1962_note": "Publicly verified 1962 source lists the top 10 money leaders, not a full top 50.",
             "gir_definition": "GIR means Greens in Regulation: reaching the green with at least two strokes left for par. GIR% is greens hit in regulation divided by holes played.",
+            "scoring_unofficial_note": f"For seasons below the PGA Tour's minimum rounds-played threshold to qualify for the official ranked Scoring Average, an unofficial actual scoring average (total strokes / rounds played, no course-difficulty adjustment) is reconstructed from that player's individual tournament results. Limited to players who ranked inside the top {NOTABLE_MONEY_RANK_CUTOFF} in Official Money for at least one season.",
         },
         "sources": [
             {
@@ -508,6 +589,8 @@ def main():
     print(f"Top 50 rows: {len(top50_rows)}")
     print(f"Wide rows: {len(wide_rows)}")
     print(f"Long rows: {len(long_rows)}")
+    print(f"Notable players reconstructed: {len(notable_player_ids)}")
+    print(f"Unofficial scoring average rows filled: {unofficial_fill_count}")
     print(f"Failures: {len(failures)}")
 
 

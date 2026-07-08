@@ -23,6 +23,8 @@ FIELD_NAMES = [
     "scoringAvg",
     "sgTotal",
     "coverage",
+    "scoringAvgUnofficial",
+    "scoringAvgUnofficialRounds",
 ]
 
 
@@ -70,6 +72,8 @@ def build_season_rows(data):
                 number(row.get("scoring_average_numeric"), digits=3),
                 number(row.get("sg_total_numeric"), digits=3),
                 row.get("coverage") or "",
+                number(row.get("scoring_average_unofficial_actual_numeric"), default=None, digits=3),
+                number(row.get("scoring_average_unofficial_rounds"), default=None, digits=0),
             ]
         )
     rows.sort(key=lambda item: (item[0], item[1], item[3]))
